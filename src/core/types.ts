@@ -49,6 +49,7 @@ export interface CastlingRights {
 
 export interface StandardChessState {
   readonly castlingRights: Readonly<Record<PlayerId, CastlingRights>>;
+  readonly enPassantTarget?: Coordinate;
 }
 
 export type GameStatus =
@@ -69,6 +70,7 @@ export interface MoveAction {
 export interface PseudoLegalMove extends MoveAction {
   readonly from: Coordinate;
   readonly capturePieceId?: string;
+  readonly enPassantCaptureSquare?: Coordinate;
 }
 
 export interface AbilityAction {

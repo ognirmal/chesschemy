@@ -108,6 +108,22 @@ function generatePawnMoves(state: GameState, piece: PieceInstance): readonly Pse
     const capturedPiece = findPieceAt(state.pieces, target);
     if (capturedPiece !== undefined && capturedPiece.owner !== piece.owner) {
       moves.push(...createPawnMoves(piece, target, promotionRank, capturedPiece.id));
+      continue;
+    }
+
+    if (isEnPassantTarget(state, target)) {
+      const enPassantCaptureSquare = offsetCoordinate(target, 0, -direction);
+      const enPassantCapturedPiece = findPieceAt(state.pieces, enPassantCaptureSquare);
+
+      if (
+        enPassantCapturedPiece !== undefined &&
+        enPassantCapturedPiece.owner !== piece.owner &&
+        enPassantCapturedPiece.definitionId === 'pawn'
+      ) {
+        moves.push(
+          createMove(piece, target, enPassantCapturedPiece.id, undefined, enPassantCaptureSquare),
+        );
+      }
     }
   }
 
@@ -175,6 +191,7 @@ function createMove(
   target: Coordinate,
   capturePieceId?: string,
   promotionDefinitionId?: string,
+  enPassantCaptureSquare?: Coordinate,
 ): PseudoLegalMove {
   return {
     kind: 'move',
@@ -183,7 +200,15 @@ function createMove(
     to: target,
     ...(capturePieceId === undefined ? {} : { capturePieceId }),
     ...(promotionDefinitionId === undefined ? {} : { promotionDefinitionId }),
+    ...(enPassantCaptureSquare === undefined ? {} : { enPassantCaptureSquare }),
   };
+}
+
+function isEnPassantTarget(state: GameState, target: Coordinate): boolean {
+  return (
+    state.standard?.enPassantTarget?.file === target.file &&
+    state.standard.enPassantTarget.rank === target.rank
+  );
 }
 
 function getPawnDirection(owner: PlayerId): number {

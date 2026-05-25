@@ -6,9 +6,12 @@ import type {
   PieceInstance,
   PlayerId,
   PseudoLegalMove,
+  StandardChessState,
 } from '../core/types.js';
 import { findPieceAt } from '../movement/boardQueries.js';
 import { getCastlingRookMove, updateCastlingRights } from './castling.js';
+
+const allowedPromotionDefinitionIds = new Set(['queen', 'rook', 'bishop', 'knight']);
 
 export function applyMove(state: GameState, move: PseudoLegalMove): GameState {
   const movingPiece = state.pieces.find((piece) => piece.id === move.pieceId);
@@ -17,7 +20,9 @@ export function applyMove(state: GameState, move: PseudoLegalMove): GameState {
     throw new ValidationError(`Cannot move unknown piece: ${move.pieceId}`);
   }
 
-  const capturedPiece = findPieceAt(state.pieces, move.to);
+  validatePromotion(movingPiece, move, state.board.ranks);
+
+  const capturedPiece = findCapturedPiece(state, move);
   if (capturedPiece?.owner === movingPiece.owner) {
     throw new ValidationError(`Cannot capture a friendly piece: ${capturedPiece.id}`);
   }
@@ -26,7 +31,7 @@ export function applyMove(state: GameState, move: PseudoLegalMove): GameState {
     .filter((piece) => piece.id !== capturedPiece?.id)
     .map((piece) => movePieceForAction(state, movingPiece, piece, move));
 
-  const nextStandard = updateCastlingRights(state, movingPiece, capturedPiece);
+  const nextStandard = updateStandardChessState(state, movingPiece, capturedPiece, move);
 
   return {
     ...state,
@@ -49,6 +54,14 @@ function movePiece(piece: PieceInstance, move: PseudoLegalMove): PieceInstance {
     definitionId: move.promotionDefinitionId ?? piece.definitionId,
     position: move.to,
   };
+}
+
+function findCapturedPiece(state: GameState, move: PseudoLegalMove): PieceInstance | undefined {
+  if (move.enPassantCaptureSquare !== undefined) {
+    return findPieceAt(state.pieces, move.enPassantCaptureSquare);
+  }
+
+  return findPieceAt(state.pieces, move.to);
 }
 
 function movePieceForAction(
@@ -94,6 +107,54 @@ function toMoveAction(move: PseudoLegalMove): MoveAction {
       ? {}
       : { promotionDefinitionId: move.promotionDefinitionId }),
   };
+}
+
+function updateStandardChessState(
+  state: GameState,
+  movingPiece: PieceInstance,
+  capturedPiece: PieceInstance | undefined,
+  move: PseudoLegalMove,
+): StandardChessState | undefined {
+  const nextStandard = updateCastlingRights(state, movingPiece, capturedPiece);
+  if (nextStandard === undefined) {
+    return undefined;
+  }
+
+  const enPassantTarget =
+    movingPiece.definitionId === 'pawn' && Math.abs(move.to.rank - move.from.rank) === 2
+      ? {
+          file: move.from.file,
+          rank: (move.from.rank + move.to.rank) / 2,
+        }
+      : undefined;
+
+  return {
+    castlingRights: nextStandard.castlingRights,
+    ...(enPassantTarget === undefined ? {} : { enPassantTarget }),
+  };
+}
+
+function validatePromotion(
+  movingPiece: PieceInstance,
+  move: PseudoLegalMove,
+  boardRanks: number,
+): void {
+  if (move.promotionDefinitionId === undefined) {
+    return;
+  }
+
+  if (movingPiece.definitionId !== 'pawn') {
+    throw new ValidationError('Only pawns can promote.');
+  }
+
+  if (!allowedPromotionDefinitionIds.has(move.promotionDefinitionId)) {
+    throw new ValidationError(`Invalid promotion piece: ${move.promotionDefinitionId}`);
+  }
+
+  const promotionRank = movingPiece.owner === 'black' ? 1 : boardRanks;
+  if (move.to.rank !== promotionRank) {
+    throw new ValidationError('Pawn promotion must end on the final rank.');
+  }
 }
 
 function sameSquare(left: Coordinate, right: Coordinate): boolean {
