@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0
+
+- Added custom piece definition support with declarative and class-based movement.
+- Added active and triggered ability execution.
+- Added generic effect primitives for state updates, statuses, cooldowns, removal, and teleporting.
+- Added JSON-friendly status helpers with finite duration ticking.
+- Added custom variant game creation with `createVariantGame`.
+- Hardened serialization validation and custom definition reattachment on restore.
+
 ## 0.2.0
 
 - Added standard chess legal move filtering.
