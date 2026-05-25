@@ -67,6 +67,48 @@ import { createGame } from 'chesschemy';
 const game = createGame();
 ```
 
+### Create a Custom Variant
+
+```ts
+import { createVariantGame, definePiece, stepper } from 'chesschemy';
+
+const wizard = definePiece({
+  id: 'wizard',
+  displayName: 'Wizard',
+  movements: [stepper({ directions: 'diagonal' })],
+});
+
+const game = createVariantGame({
+  board: { files: 8, ranks: 8 },
+  pieces: [
+    {
+      id: 'white-wizard',
+      definitionId: 'wizard',
+      owner: 'white',
+      position: { file: 4, rank: 1 },
+    },
+    {
+      id: 'white-king',
+      definitionId: 'king',
+      owner: 'white',
+      position: { file: 5, rank: 1 },
+    },
+    {
+      id: 'black-king',
+      definitionId: 'king',
+      owner: 'black',
+      position: { file: 5, rank: 8 },
+    },
+  ],
+  pieceDefinitions: [wizard],
+  ruleset: {
+    id: 'wizard-chess',
+    version: '1.0.0',
+    displayName: 'Wizard Chess',
+  },
+});
+```
+
 ### Query the Board
 
 ```ts
