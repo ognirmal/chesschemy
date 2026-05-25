@@ -5,6 +5,7 @@ export * from './events/index.js';
 export * from './movement/index.js';
 export * from './pieces/index.js';
 export * from './presets/index.js';
+export * from './queries/index.js';
 export * from './rules/index.js';
 export * from './serialization/index.js';
 export * from './validation/index.js';
