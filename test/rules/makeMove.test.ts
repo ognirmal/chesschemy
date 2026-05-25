@@ -1,4 +1,10 @@
-import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
+import type {
+  CastlingRights,
+  Coordinate,
+  GameState,
+  PieceInstance,
+  PlayerId,
+} from '../../src/index.js';
 import { createGame, makeMove, validateMove, ValidationError } from '../../src/index.js';
 
 describe('move execution API', () => {
@@ -73,6 +79,111 @@ describe('move execution API', () => {
     );
   });
 
+  it('applies castling through move input only when the castling side matches', () => {
+    const state = gameState(
+      [
+        piece('white-king', 'king', 'white', { file: 5, rank: 1 }),
+        piece('white-rook-h', 'rook', 'white', { file: 8, rank: 1 }),
+        piece('black-king', 'king', 'black', { file: 5, rank: 8 }),
+      ],
+      'white',
+      {
+        castlingRights: {
+          black: { kingSide: false, queenSide: false },
+          white: { kingSide: true, queenSide: false },
+        },
+      },
+    );
+
+    expect(
+      validateMove(state, {
+        pieceId: 'white-king',
+        to: { file: 7, rank: 1 },
+        castleSide: 'queenSide',
+      }),
+    ).toEqual({
+      valid: false,
+      reason: 'Move is not legal.',
+    });
+
+    const nextState = makeMove(state, {
+      pieceId: 'white-king',
+      to: { file: 7, rank: 1 },
+      castleSide: 'kingSide',
+    });
+
+    expect(nextState.pieces.find((candidate) => candidate.id === 'white-king')?.position).toEqual({
+      file: 7,
+      rank: 1,
+    });
+    expect(nextState.pieces.find((candidate) => candidate.id === 'white-rook-h')?.position).toEqual(
+      {
+        file: 6,
+        rank: 1,
+      },
+    );
+    expect(nextState.history.at(-1)).toEqual({
+      kind: 'move',
+      pieceId: 'white-king',
+      to: { file: 7, rank: 1 },
+      castleSide: 'kingSide',
+    });
+  });
+
+  it('applies en passant through move input', () => {
+    const state = gameState(
+      [
+        piece('white-pawn', 'pawn', 'white', { file: 5, rank: 5 }),
+        piece('black-pawn', 'pawn', 'black', { file: 4, rank: 5 }),
+        piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+        piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+      ],
+      'white',
+      {
+        enPassantTarget: { file: 4, rank: 6 },
+      },
+    );
+
+    const nextState = makeMove(state, {
+      pieceId: 'white-pawn',
+      to: { file: 4, rank: 6 },
+    });
+
+    expect(nextState.pieces.find((candidate) => candidate.id === 'black-pawn')).toBeUndefined();
+    expect(nextState.pieces.find((candidate) => candidate.id === 'white-pawn')?.position).toEqual({
+      file: 4,
+      rank: 6,
+    });
+    expect(nextState.standard?.enPassantTarget).toBeUndefined();
+  });
+
+  it('rejects invalid promotion input through validation and makeMove', () => {
+    const state = gameState([
+      piece('white-pawn', 'pawn', 'white', { file: 1, rank: 7 }),
+      piece('white-king', 'king', 'white', { file: 5, rank: 1 }),
+      piece('black-king', 'king', 'black', { file: 5, rank: 8 }),
+    ]);
+
+    expect(
+      validateMove(state, {
+        pieceId: 'white-pawn',
+        to: { file: 1, rank: 8 },
+        promotionDefinitionId: 'king',
+      }),
+    ).toEqual({
+      valid: false,
+      reason: 'Move is not legal.',
+    });
+
+    expect(() =>
+      makeMove(state, {
+        pieceId: 'white-pawn',
+        to: { file: 1, rank: 8 },
+        promotionDefinitionId: 'king',
+      }),
+    ).toThrow(ValidationError);
+  });
+
   it('updates status to won after checkmate', () => {
     const state = gameState(
       [
@@ -137,7 +248,16 @@ describe('move execution API', () => {
   });
 });
 
-function gameState(pieces: readonly PieceInstance[], activePlayer: PlayerId = 'white'): GameState {
+interface StandardStateOptions {
+  readonly castlingRights?: Readonly<Record<PlayerId, CastlingRights>>;
+  readonly enPassantTarget?: Coordinate;
+}
+
+function gameState(
+  pieces: readonly PieceInstance[],
+  activePlayer: PlayerId = 'white',
+  standard: StandardStateOptions = {},
+): GameState {
   return {
     board: { files: 8, ranks: 8 },
     pieces,
@@ -152,10 +272,13 @@ function gameState(pieces: readonly PieceInstance[], activePlayer: PlayerId = 'w
       displayName: 'Standard Chess',
     },
     standard: {
-      castlingRights: {
+      castlingRights: standard.castlingRights ?? {
         black: { kingSide: false, queenSide: false },
         white: { kingSide: false, queenSide: false },
       },
+      ...(standard.enPassantTarget === undefined
+        ? {}
+        : { enPassantTarget: standard.enPassantTarget }),
     },
     history: [],
     status: { kind: 'active' },
