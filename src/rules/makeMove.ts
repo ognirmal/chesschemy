@@ -7,7 +7,8 @@ import type {
 } from '../core/types.js';
 import { sameCoordinate } from '../core/coordinates.js';
 import { ValidationError } from '../core/errors.js';
-import { applyMove } from './applyMove.js';
+import { resolveTriggeredAbilities } from '../events/resolveTriggeredAbilities.js';
+import { applyMove, getMoveEvents } from './applyMove.js';
 import { getGameOutcome } from './gameOutcome.js';
 import { generateLegalMoves } from './legalMoveGeneration.js';
 
@@ -102,7 +103,10 @@ export function makeMove(state: GameState, input: MoveInput): GameState {
     throw new ValidationError(validation.reason);
   }
 
-  return withUpdatedStatus(applyMove(state, validation.move));
+  const movedState = applyMove(state, validation.move);
+  return withUpdatedStatus(
+    resolveTriggeredAbilities(movedState, getMoveEvents(state, validation.move)),
+  );
 }
 
 function isMoveMatch(move: PseudoLegalMove, input: MoveInput): boolean {

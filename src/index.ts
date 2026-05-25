@@ -8,4 +8,5 @@ export * from './presets/index.js';
 export * from './queries/index.js';
 export * from './rules/index.js';
 export * from './serialization/index.js';
+export * from './statuses/index.js';
 export * from './validation/index.js';

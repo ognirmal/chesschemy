@@ -7,6 +7,7 @@ import type {
   PseudoLegalMove,
 } from '../core/types.js';
 import type { PieceDefinition } from '../pieces/pieceDefinition.js';
+import { hasPieceStatus } from '../statuses/statusDefinition.js';
 import { findPieceAt, isTargetAvailable, offsetCoordinate } from './boardQueries.js';
 import type { MoveCandidate } from './movementPattern.js';
 
@@ -58,6 +59,10 @@ export function generatePseudoLegalMovesForPiece(
   state: GameState,
   piece: PieceInstance,
 ): readonly PseudoLegalMove[] {
+  if (hasPieceStatus(piece, 'frozen')) {
+    return [];
+  }
+
   switch (piece.definitionId) {
     case 'pawn':
       return generatePawnMoves(state, piece);

@@ -12,6 +12,10 @@ module boundaries for custom pieces, abilities, effects, and variant rules.
 - Castling, en passant, and promotion
 - Checkmate and stalemate outcome detection
 - Public `validateMove` and `makeMove` APIs
+- Public `validateAbility` and `useAbility` APIs
+- Triggered ability resolution from deterministic engine events
+- Generic effect helpers for teleporting, removing pieces, and updating piece state
+- JSON-friendly piece statuses with finite duration ticking and cooldown helpers
 - Board query helpers for UI and game-flow integration
 - JSON-friendly state serialization baseline
 - Strict TypeScript types and generated declarations
@@ -93,6 +97,74 @@ if (validation.valid) {
 }
 ```
 
+### Use Active Abilities
+
+```ts
+import { definePiece, teleportSourceToTarget, useAbility } from 'chesschemy';
+
+const wizard = definePiece({
+  id: 'wizard',
+  displayName: 'Wizard',
+  abilities: [
+    {
+      id: 'blink',
+      kind: 'active',
+      displayName: 'Blink',
+      target: { range: 2, occupancy: 'empty' },
+      effects: [teleportSourceToTarget()],
+    },
+  ],
+});
+
+const nextGame = useAbility(game, {
+  pieceId: 'white-wizard',
+  abilityId: 'blink',
+  target: { file: 6, rank: 5 },
+});
+```
+
+### Statuses and Cooldowns
+
+```ts
+import { addTargetStatus, hasAbilityCooldown, setSourceAbilityCooldown } from 'chesschemy';
+
+const freeze = {
+  id: 'freeze',
+  kind: 'active',
+  displayName: 'Freeze',
+  target: { range: 3, occupancy: 'enemy' },
+  effects: [addTargetStatus({ id: 'frozen', duration: 1 })],
+};
+
+const blink = {
+  id: 'blink',
+  kind: 'active',
+  displayName: 'Blink',
+  canActivate: ({ source }) => !hasAbilityCooldown(source, 'blink'),
+  effects: [setSourceAbilityCooldown('blink', 2)],
+};
+```
+
+Pieces with a `frozen` status do not generate legal moves. Finite statuses tick
+down when their owner's turn ends and are removed when their duration reaches
+zero.
+
+### Serialization
+
+```ts
+import { deserializeGameState, serializeGameState } from 'chesschemy';
+
+const serialized = serializeGameState(game);
+const restored = deserializeGameState(serialized, {
+  pieceDefinitions: [wizard],
+});
+```
+
+Serialized game state is JSON-friendly runtime data. Custom piece definitions,
+abilities, effects, classes, and callbacks are intentionally not included in the
+serialized payload; pass them back through `deserializeGameState` when restoring
+custom games.
+
 ### Promotion
 
 Promotion requires an explicit `promotionDefinitionId`.
@@ -141,6 +213,8 @@ npm run format
 
 ## Current Status
 
-The standard chess base is ready for development use. Future work will focus on
-FEN support, richer draw rules, documentation examples, and the custom
-piece/ability APIs described in the PRD.
+The standard chess base is ready for development use. Custom pieces and active
+ability execution are available as extension APIs, and triggered abilities can
+react to deterministic engine events. Statuses and cooldowns are available for
+temporary effects. Future work will focus on FEN support, richer draw rules,
+documentation examples, and deeper passive ability handling.

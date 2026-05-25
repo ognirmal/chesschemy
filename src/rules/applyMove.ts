@@ -8,6 +8,7 @@ import type {
   PseudoLegalMove,
   StandardChessState,
 } from '../core/types.js';
+import type { GameEvent } from '../events/gameEvent.js';
 import { findPieceAt } from '../movement/boardQueries.js';
 import { getCastlingRookMove, updateCastlingRights } from './castling.js';
 
@@ -46,6 +47,44 @@ export function applyMove(state: GameState, move: PseudoLegalMove): GameState {
     },
     history: [...state.history, toMoveAction(move)],
   };
+}
+
+export function getMoveEvents(state: GameState, move: PseudoLegalMove): readonly GameEvent[] {
+  const movingPiece = state.pieces.find((piece) => piece.id === move.pieceId);
+
+  if (movingPiece === undefined) {
+    throw new ValidationError(`Cannot build move events for unknown piece: ${move.pieceId}`);
+  }
+
+  const action = toMoveAction(move);
+  const capturedPiece = findCapturedPiece(state, move);
+  const events: GameEvent[] = [
+    { kind: 'action:accepted', action },
+    {
+      kind: 'piece:moved',
+      action,
+      piece: movingPiece,
+      from: move.from,
+      to: move.to,
+    },
+  ];
+
+  if (capturedPiece !== undefined) {
+    events.push({
+      kind: 'piece:captured',
+      piece: capturedPiece,
+      byPiece: movingPiece,
+      at: capturedPiece.position,
+    });
+  }
+
+  events.push({
+    kind: 'turn:ended',
+    previousPlayer: movingPiece.owner,
+    nextPlayer: getNextPlayer(state, movingPiece.owner),
+  });
+
+  return events;
 }
 
 function movePiece(piece: PieceInstance, move: PseudoLegalMove): PieceInstance {
