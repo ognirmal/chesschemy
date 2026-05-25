@@ -5,6 +5,16 @@ export interface MovementContext {
   readonly piece: PieceInstance;
 }
 
+export type PieceBehaviorContext = MovementContext;
+
+export interface MoveCandidate {
+  readonly to: Coordinate;
+}
+
+export type Offset = readonly [number, number];
+
+export type DirectionSet = 'orthogonal' | 'diagonal' | 'all';
+
 export interface MovementPattern {
   readonly id: string;
   generateTargets(context: MovementContext): readonly Coordinate[];

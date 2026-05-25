@@ -6,7 +6,9 @@ import type {
   PlayerId,
   PseudoLegalMove,
 } from '../core/types.js';
+import type { PieceDefinition } from '../pieces/pieceDefinition.js';
 import { findPieceAt, isTargetAvailable, offsetCoordinate } from './boardQueries.js';
+import type { MoveCandidate } from './movementPattern.js';
 
 export interface MoveGenerationOptions {
   readonly playerId?: PlayerId;
@@ -70,8 +72,58 @@ export function generatePseudoLegalMovesForPiece(
     case 'king':
       return generateLeaperMoves(state, piece, kingOffsets);
     default:
-      return [];
+      return generateCustomPieceMoves(state, piece);
   }
+}
+
+function generateCustomPieceMoves(
+  state: GameState,
+  piece: PieceInstance,
+): readonly PseudoLegalMove[] {
+  const definition = getPieceDefinition(state, piece.definitionId);
+  if (definition === undefined) {
+    return [];
+  }
+
+  const context = { state, piece };
+  if (definition.canMovePiece?.(context) === false || definition.canMove === false) {
+    return [];
+  }
+
+  const candidates =
+    definition.generateMoves?.(context) ??
+    definition.movements?.flatMap((movement) =>
+      movement.generateTargets(context).map((target) => ({ to: target })),
+    ) ??
+    [];
+
+  return candidates.flatMap((candidate) => createCustomMove(state, piece, definition, candidate));
+}
+
+function createCustomMove(
+  state: GameState,
+  piece: PieceInstance,
+  definition: PieceDefinition,
+  candidate: MoveCandidate,
+): readonly PseudoLegalMove[] {
+  if (!isCoordinateInsideBoard(candidate.to, state.board)) {
+    return [];
+  }
+
+  const occupiedPiece = findPieceAt(state.pieces, candidate.to);
+  if (occupiedPiece?.owner === piece.owner) {
+    return [];
+  }
+
+  if (occupiedPiece !== undefined && definition.canCapture === false) {
+    return [];
+  }
+
+  if (occupiedPiece !== undefined && definition.canCapturePiece?.({ state, piece }) === false) {
+    return [];
+  }
+
+  return [createMove(piece, candidate.to, occupiedPiece?.id)];
 }
 
 function generatePawnMoves(state: GameState, piece: PieceInstance): readonly PseudoLegalMove[] {
@@ -221,4 +273,8 @@ function getPawnStartingRank(owner: PlayerId): number {
 
 function getPawnPromotionRank(owner: PlayerId, boardRanks: number): number {
   return owner === 'black' ? 1 : boardRanks;
+}
+
+function getPieceDefinition(state: GameState, definitionId: string): PieceDefinition | undefined {
+  return state.pieceDefinitions?.find((definition) => definition.id === definitionId);
 }

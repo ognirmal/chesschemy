@@ -33,6 +33,7 @@ export interface RulesetMetadata {
 export interface GameState {
   readonly board: BoardDimensions;
   readonly pieces: readonly PieceInstance[];
+  readonly pieceDefinitions?: readonly import('../pieces/pieceDefinition.js').PieceDefinition[];
   readonly turn: TurnState;
   readonly ruleset: RulesetMetadata;
   readonly standard?: StandardChessState;

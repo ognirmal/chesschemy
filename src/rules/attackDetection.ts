@@ -2,6 +2,7 @@ import { isCoordinateInsideBoard, sameCoordinate } from '../core/coordinates.js'
 import { ValidationError } from '../core/errors.js';
 import type { Coordinate, GameState, PieceInstance, PlayerId } from '../core/types.js';
 import { findPieceAt, offsetCoordinate } from '../movement/boardQueries.js';
+import { generatePseudoLegalMovesForPiece } from '../movement/standardMoveGeneration.js';
 
 const diagonalDirections = [
   [1, 1],
@@ -74,7 +75,9 @@ function doesPieceAttackSquare(
     case 'king':
       return doesLeaperAttackSquare(state, piece, square, kingOffsets);
     default:
-      return false;
+      return generatePseudoLegalMovesForPiece(state, piece).some((move) =>
+        sameCoordinate(move.to, square),
+      );
   }
 }
 
