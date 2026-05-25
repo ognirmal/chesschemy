@@ -48,6 +48,12 @@ export const standardPreset: GamePreset = {
         version: standardRuleset.version,
         displayName: standardRuleset.displayName,
       },
+      standard: {
+        castlingRights: {
+          black: { kingSide: true, queenSide: true },
+          white: { kingSide: true, queenSide: true },
+        },
+      },
       history: [],
       status: { kind: 'active' },
     };

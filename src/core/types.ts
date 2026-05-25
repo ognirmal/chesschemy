@@ -35,8 +35,20 @@ export interface GameState {
   readonly pieces: readonly PieceInstance[];
   readonly turn: TurnState;
   readonly ruleset: RulesetMetadata;
+  readonly standard?: StandardChessState;
   readonly history: readonly GameAction[];
   readonly status: GameStatus;
+}
+
+export type CastlingSide = 'kingSide' | 'queenSide';
+
+export interface CastlingRights {
+  readonly kingSide: boolean;
+  readonly queenSide: boolean;
+}
+
+export interface StandardChessState {
+  readonly castlingRights: Readonly<Record<PlayerId, CastlingRights>>;
 }
 
 export type GameStatus =
@@ -51,6 +63,7 @@ export interface MoveAction {
   readonly pieceId: string;
   readonly to: Coordinate;
   readonly promotionDefinitionId?: string;
+  readonly castleSide?: CastlingSide;
 }
 
 export interface PseudoLegalMove extends MoveAction {
