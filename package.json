@@ -10,6 +10,8 @@
   },
   "files": [
     "dist",
+    "docs",
+    "examples",
     "README.md",
     "LICENSE"
   ],
