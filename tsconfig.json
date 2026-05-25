@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
     "declaration": true,
     "declarationMap": true,
     "exactOptionalPropertyTypes": true,
@@ -15,6 +16,9 @@
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
+    "paths": {
+      "chesschemy": ["./src/index.ts"]
+    },
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,

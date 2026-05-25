@@ -1,4 +1,4 @@
-import { createGame, getLegalMovesForPiece, makeMove, validateMove } from '../src/index.js';
+import { createGame, getLegalMovesForPiece, makeMove, validateMove } from 'chesschemy';
 
 let game = createGame();
 

@@ -126,6 +126,7 @@ attacks, and rook relocation.
 
 - [Getting Started: Build a Basic Game](docs/getting-started-basic-game.md)
 - [Architecture](docs/architecture.md)
+- [Release Guide](docs/release.md)
 
 ## Development
 
