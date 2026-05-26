@@ -1,4 +1,5 @@
 import { isCoordinateInsideBoard } from '../core/coordinates.js';
+import { canCaptureTarget } from '../abilities/passiveAbilities.js';
 import type {
   Coordinate,
   GameState,
@@ -128,6 +129,10 @@ function createCustomMove(
     return [];
   }
 
+  if (occupiedPiece !== undefined && !canCaptureTarget(state, piece, occupiedPiece)) {
+    return [];
+  }
+
   return [createMove(piece, candidate.to, occupiedPiece?.id)];
 }
 
@@ -163,7 +168,11 @@ function generatePawnMoves(state: GameState, piece: PieceInstance): readonly Pse
     }
 
     const capturedPiece = findPieceAt(state.pieces, target);
-    if (capturedPiece !== undefined && capturedPiece.owner !== piece.owner) {
+    if (
+      capturedPiece !== undefined &&
+      capturedPiece.owner !== piece.owner &&
+      canCaptureTarget(state, piece, capturedPiece)
+    ) {
       moves.push(...createPawnMoves(piece, target, promotionRank, capturedPiece.id));
       continue;
     }
@@ -175,7 +184,8 @@ function generatePawnMoves(state: GameState, piece: PieceInstance): readonly Pse
       if (
         enPassantCapturedPiece !== undefined &&
         enPassantCapturedPiece.owner !== piece.owner &&
-        enPassantCapturedPiece.definitionId === 'pawn'
+        enPassantCapturedPiece.definitionId === 'pawn' &&
+        canCaptureTarget(state, piece, enPassantCapturedPiece)
       ) {
         moves.push(
           createMove(piece, target, enPassantCapturedPiece.id, undefined, enPassantCaptureSquare),
@@ -194,8 +204,24 @@ function generateLeaperMoves(
 ): readonly PseudoLegalMove[] {
   return offsets
     .map(([fileOffset, rankOffset]) => offsetCoordinate(piece.position, fileOffset, rankOffset))
-    .filter((target) => isTargetAvailable(state.pieces, target, piece.owner, state.board))
-    .map((target) => createMove(piece, target, findPieceAt(state.pieces, target)?.id));
+    .flatMap((target) => createLeaperMove(state, piece, target));
+}
+
+function createLeaperMove(
+  state: GameState,
+  piece: PieceInstance,
+  target: Coordinate,
+): readonly PseudoLegalMove[] {
+  if (!isTargetAvailable(state.pieces, target, piece.owner, state.board)) {
+    return [];
+  }
+
+  const capturedPiece = findPieceAt(state.pieces, target);
+  if (capturedPiece !== undefined && !canCaptureTarget(state, piece, capturedPiece)) {
+    return [];
+  }
+
+  return [createMove(piece, target, capturedPiece?.id)];
 }
 
 function generateSlidingMoves(
@@ -217,7 +243,7 @@ function generateSlidingMoves(
         continue;
       }
 
-      if (occupiedPiece.owner !== piece.owner) {
+      if (occupiedPiece.owner !== piece.owner && canCaptureTarget(state, piece, occupiedPiece)) {
         moves.push(createMove(piece, target, occupiedPiece.id));
       }
 

@@ -11,6 +11,12 @@ export interface AbilityContext {
   readonly event?: GameEvent;
 }
 
+export interface PassiveCaptureContext extends AbilityContext {
+  readonly ability: AbilityDefinition;
+  readonly attacker: PieceInstance;
+  readonly targetPiece: PieceInstance;
+}
+
 export type AbilityKind = 'active' | 'passive' | 'triggered';
 
 export type AbilityTargetDistance = 'chebyshev' | 'manhattan';
@@ -36,4 +42,5 @@ export interface AbilityDefinition {
   canActivate?(context: AbilityContext): boolean;
   shouldTrigger?(context: AbilityContext): boolean;
   resolveTarget?(context: AbilityContext): Coordinate | undefined;
+  canCapture?(context: PassiveCaptureContext): boolean;
 }

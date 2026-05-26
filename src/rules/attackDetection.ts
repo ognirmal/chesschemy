@@ -1,4 +1,5 @@
 import { isCoordinateInsideBoard, sameCoordinate } from '../core/coordinates.js';
+import { canCaptureTarget } from '../abilities/passiveAbilities.js';
 import { ValidationError } from '../core/errors.js';
 import type { Coordinate, GameState, PieceInstance, PlayerId } from '../core/types.js';
 import { findPieceAt, offsetCoordinate } from '../movement/boardQueries.js';
@@ -60,7 +61,7 @@ function doesPieceAttackSquare(
 ): boolean {
   switch (piece.definitionId) {
     case 'pawn':
-      return doesPawnAttackSquare(piece, square);
+      return doesPawnAttackSquare(state, piece, square);
     case 'knight':
       return doesLeaperAttackSquare(state, piece, square, knightOffsets);
     case 'bishop':
@@ -81,10 +82,12 @@ function doesPieceAttackSquare(
   }
 }
 
-function doesPawnAttackSquare(piece: PieceInstance, square: Coordinate): boolean {
+function doesPawnAttackSquare(state: GameState, piece: PieceInstance, square: Coordinate): boolean {
   const direction = piece.owner === 'black' ? -1 : 1;
-  return [-1, 1].some((fileOffset) =>
-    sameCoordinate(offsetCoordinate(piece.position, fileOffset, direction), square),
+  return [-1, 1].some(
+    (fileOffset) =>
+      sameCoordinate(offsetCoordinate(piece.position, fileOffset, direction), square) &&
+      canAttackSquare(state, piece, square),
   );
 }
 
@@ -97,7 +100,7 @@ function doesLeaperAttackSquare(
   return offsets
     .map(([fileOffset, rankOffset]) => offsetCoordinate(piece.position, fileOffset, rankOffset))
     .filter((target) => isCoordinateInsideBoard(target, state.board))
-    .some((target) => sameCoordinate(target, square));
+    .some((target) => sameCoordinate(target, square) && canAttackSquare(state, piece, square));
 }
 
 function doesSliderAttackSquare(
@@ -111,7 +114,7 @@ function doesSliderAttackSquare(
 
     while (isCoordinateInsideBoard(target, state.board)) {
       if (sameCoordinate(target, square)) {
-        return true;
+        return canAttackSquare(state, piece, square);
       }
 
       if (findPieceAt(state.pieces, target) !== undefined) {
@@ -123,6 +126,15 @@ function doesSliderAttackSquare(
   }
 
   return false;
+}
+
+function canAttackSquare(state: GameState, piece: PieceInstance, square: Coordinate): boolean {
+  const targetPiece = findPieceAt(state.pieces, square);
+  return (
+    targetPiece === undefined ||
+    targetPiece.owner === piece.owner ||
+    canCaptureTarget(state, piece, targetPiece)
+  );
 }
 
 function getOpposingPlayer(state: GameState, playerId: PlayerId): PlayerId {

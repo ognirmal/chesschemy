@@ -128,6 +128,35 @@ const assassin = definePiece({
 Current engine events include accepted actions, moved pieces, captured pieces,
 used abilities, removed pieces, and ended turns.
 
+## Add Passive Protection
+
+Passive abilities can currently answer capture-rule questions with `canCapture`.
+This supports shield-style mechanics where a piece protects nearby allies from
+being captured.
+
+```ts
+import type { AbilityDefinition } from 'chesschemy';
+
+const shieldAdjacentAlly: AbilityDefinition = {
+  id: 'shield-adjacent-ally',
+  kind: 'passive',
+  displayName: 'Shield Adjacent Ally',
+  effects: [],
+  canCapture: ({ source, attacker, targetPiece }) => {
+    if (attacker.owner === source.owner || targetPiece.owner !== source.owner) {
+      return true;
+    }
+
+    const fileDistance = Math.abs(source.position.file - targetPiece.position.file);
+    const rankDistance = Math.abs(source.position.rank - targetPiece.position.rank);
+    return Math.max(fileDistance, rankDistance) > 1;
+  },
+};
+```
+
+See [Passive Abilities](passive-abilities.md) for design notes and the current
+supported hook.
+
 ## Serialize Custom Games
 
 `serializeGameState` stores JSON-friendly runtime state. Piece definitions,
@@ -151,3 +180,4 @@ custom pieces and abilities.
 - `examples/teleporter.ts`
 - `examples/freeze-tower.ts`
 - `examples/vanish-assassin.ts`
+- `examples/guardian-shield.ts`

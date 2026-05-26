@@ -13,6 +13,7 @@ module boundaries for custom pieces, abilities, effects, and variant rules.
 - Checkmate, stalemate, and insufficient-material outcome detection
 - Public `validateMove` and `makeMove` APIs
 - Public `validateAbility` and `useAbility` APIs
+- Passive capture-rule hooks for shield and protection mechanics
 - Triggered ability resolution from deterministic engine events
 - Generic effect helpers for teleporting, removing pieces, and updating piece state
 - JSON-friendly piece statuses with finite duration ticking and cooldown helpers
@@ -244,6 +245,7 @@ attacks, and rook relocation.
 
 - [Getting Started: Build a Basic Game](docs/getting-started-basic-game.md)
 - [Custom Pieces And Abilities](docs/custom-pieces-and-abilities.md)
+- [Passive Abilities](docs/passive-abilities.md)
 - [Architecture](docs/architecture.md)
 - [Release Guide](docs/release.md)
 
@@ -264,5 +266,6 @@ The standard chess base is ready for development use. Custom pieces and active
 ability execution are available as extension APIs, and triggered abilities can
 react to deterministic engine events. Statuses and cooldowns are available for
 temporary effects. Standard FEN import/export is available for normal chess
-positions. Future work will focus on richer draw rules, broader examples, and
-deeper passive ability handling.
+positions. Passive capture-rule hooks are available for shield-style mechanics.
+Future work will focus on richer draw rules, broader examples, and deeper passive
+ability handling.

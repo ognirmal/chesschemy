@@ -4,7 +4,8 @@
 
 - Added standard chess FEN import/export helpers.
 - Added custom piece and ability guide.
-- Added runnable Teleporter, Freeze Tower, and Vanish Assassin examples.
+- Added passive capture-rule hooks for shield and protection mechanics.
+- Added runnable Teleporter, Freeze Tower, Vanish Assassin, and Guardian Shield examples.
 - Added insufficient-material draw detection.
 - Hardened game-state validation for duplicate IDs, unknown definitions, turn metadata, and ability metadata.
 
