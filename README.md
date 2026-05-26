@@ -10,7 +10,7 @@ module boundaries for custom pieces, abilities, effects, and variant rules.
 - Standard 8x8 chess initial state
 - Legal move generation with check filtering
 - Castling, en passant, and promotion
-- Checkmate and stalemate outcome detection
+- Checkmate, stalemate, and insufficient-material outcome detection
 - Public `validateMove` and `makeMove` APIs
 - Public `validateAbility` and `useAbility` APIs
 - Triggered ability resolution from deterministic engine events
@@ -18,6 +18,7 @@ module boundaries for custom pieces, abilities, effects, and variant rules.
 - JSON-friendly piece statuses with finite duration ticking and cooldown helpers
 - Board query helpers for UI and game-flow integration
 - JSON-friendly state serialization baseline
+- Standard chess FEN import/export
 - Strict TypeScript types and generated declarations
 
 ## Install
@@ -194,18 +195,21 @@ zero.
 ### Serialization
 
 ```ts
-import { deserializeGameState, serializeGameState } from 'chesschemy';
+import { deserializeGameState, deserializeFen, serializeFen, serializeGameState } from 'chesschemy';
 
 const serialized = serializeGameState(game);
 const restored = deserializeGameState(serialized, {
   pieceDefinitions: [wizard],
 });
+
+const fen = serializeFen(createGame());
+const fromFen = deserializeFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
 ```
 
 Serialized game state is JSON-friendly runtime data. Custom piece definitions,
 abilities, effects, classes, and callbacks are intentionally not included in the
 serialized payload; pass them back through `deserializeGameState` when restoring
-custom games.
+custom games. FEN support is intended for standard chess positions.
 
 ### Promotion
 
@@ -239,6 +243,7 @@ attacks, and rook relocation.
 ## Guides
 
 - [Getting Started: Build a Basic Game](docs/getting-started-basic-game.md)
+- [Custom Pieces And Abilities](docs/custom-pieces-and-abilities.md)
 - [Architecture](docs/architecture.md)
 - [Release Guide](docs/release.md)
 
@@ -258,5 +263,6 @@ npm run format
 The standard chess base is ready for development use. Custom pieces and active
 ability execution are available as extension APIs, and triggered abilities can
 react to deterministic engine events. Statuses and cooldowns are available for
-temporary effects. Future work will focus on FEN support, richer draw rules,
-documentation examples, and deeper passive ability handling.
+temporary effects. Standard FEN import/export is available for normal chess
+positions. Future work will focus on richer draw rules, broader examples, and
+deeper passive ability handling.
