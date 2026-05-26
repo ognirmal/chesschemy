@@ -311,6 +311,11 @@ function getStatusFromOutcome(state: GameState): GameStatus {
         kind: 'draw',
         reason: 'stalemate',
       };
+    case 'insufficientMaterial':
+      return {
+        kind: 'draw',
+        reason: 'insufficient-material',
+      };
   }
 }
 

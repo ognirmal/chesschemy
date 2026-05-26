@@ -1,5 +1,10 @@
 import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
-import { getGameOutcome, isCheckmate, isStalemate } from '../../src/index.js';
+import {
+  getGameOutcome,
+  isCheckmate,
+  isInsufficientMaterial,
+  isStalemate,
+} from '../../src/index.js';
 
 describe('game outcome helpers', () => {
   it('detects checkmate', () => {
@@ -41,12 +46,85 @@ describe('game outcome helpers', () => {
     const state = gameState(
       [
         piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+        piece('white-rook', 'rook', 'white', { file: 1, rank: 2 }),
         piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
       ],
       'white',
     );
 
     expect(getGameOutcome(state)).toEqual({ kind: 'active' });
+  });
+
+  it('detects insufficient material with bare kings', () => {
+    const state = gameState(
+      [
+        piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+        piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+      ],
+      'white',
+    );
+
+    expect(isInsufficientMaterial(state)).toBe(true);
+    expect(getGameOutcome(state)).toEqual({ kind: 'insufficientMaterial' });
+  });
+
+  it('detects insufficient material with one minor piece', () => {
+    const bishopState = gameState(
+      [
+        piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+        piece('white-bishop', 'bishop', 'white', { file: 3, rank: 1 }),
+        piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+      ],
+      'white',
+    );
+    const knightState = gameState(
+      [
+        piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+        piece('white-knight', 'knight', 'white', { file: 2, rank: 1 }),
+        piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+      ],
+      'white',
+    );
+
+    expect(getGameOutcome(bishopState)).toEqual({ kind: 'insufficientMaterial' });
+    expect(getGameOutcome(knightState)).toEqual({ kind: 'insufficientMaterial' });
+  });
+
+  it('detects insufficient material with bishops on the same color', () => {
+    const state = gameState(
+      [
+        piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+        piece('white-bishop', 'bishop', 'white', { file: 3, rank: 1 }),
+        piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+        piece('black-bishop', 'bishop', 'black', { file: 6, rank: 4 }),
+      ],
+      'white',
+    );
+
+    expect(getGameOutcome(state)).toEqual({ kind: 'insufficientMaterial' });
+  });
+
+  it('does not report insufficient material with mating material', () => {
+    const rookState = gameState(
+      [
+        piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+        piece('white-rook', 'rook', 'white', { file: 1, rank: 2 }),
+        piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+      ],
+      'white',
+    );
+    const oppositeBishopState = gameState(
+      [
+        piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+        piece('white-bishop', 'bishop', 'white', { file: 3, rank: 1 }),
+        piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+        piece('black-bishop', 'bishop', 'black', { file: 6, rank: 5 }),
+      ],
+      'white',
+    );
+
+    expect(isInsufficientMaterial(rookState)).toBe(false);
+    expect(isInsufficientMaterial(oppositeBishopState)).toBe(false);
   });
 });
 

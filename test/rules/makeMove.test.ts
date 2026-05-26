@@ -227,6 +227,28 @@ describe('move execution API', () => {
     });
   });
 
+  it('updates status to draw after insufficient material', () => {
+    const state = gameState(
+      [
+        piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+        piece('white-bishop', 'bishop', 'white', { file: 3, rank: 1 }),
+        piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+        piece('black-bishop', 'bishop', 'black', { file: 8, rank: 6 }),
+      ],
+      'black',
+    );
+
+    const nextState = makeMove(state, {
+      pieceId: 'black-bishop',
+      to: { file: 3, rank: 1 },
+    });
+
+    expect(nextState.status).toEqual({
+      kind: 'draw',
+      reason: 'insufficient-material',
+    });
+  });
+
   it('does not allow moves after the game has ended', () => {
     const state: GameState = {
       ...createGame(),
