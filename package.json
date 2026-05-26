@@ -1,8 +1,20 @@
 {
   "name": "chesschemy",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A TypeScript-first engine for chess and programmable chess variants.",
   "license": "MIT",
+  "author": "SinghNirmal01",
+  "homepage": "https://github.com/SinghNirmal01/chesschemy#readme",
+  "bugs": {
+    "url": "https://github.com/SinghNirmal01/chesschemy/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SinghNirmal01/chesschemy.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "sideEffects": false,
   "engines": {
@@ -41,10 +53,23 @@
   },
   "keywords": [
     "chess",
+    "chess-engine",
+    "chess-library",
+    "chess-variants",
     "engine",
     "typescript",
     "board-game",
-    "variants"
+    "game-engine",
+    "turn-based",
+    "deterministic",
+    "move-generation",
+    "legal-moves",
+    "fen",
+    "serialization",
+    "custom-pieces",
+    "abilities",
+    "rules-engine",
+    "variant-engine"
   ],
   "devDependencies": {
     "@eslint/js": "^9.27.0",

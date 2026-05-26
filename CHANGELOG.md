@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
 
 - Added standard chess FEN import/export helpers.
 - Added custom piece and ability guide.
