@@ -1,16 +1,16 @@
 {
   "name": "chesschemy",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A TypeScript-first engine for chess and programmable chess variants.",
   "license": "MIT",
-  "author": "SinghNirmal01",
-  "homepage": "https://github.com/SinghNirmal01/chesschemy#readme",
+  "author": "ognirmal",
+  "homepage": "https://github.com/ognirmal/chesschemy#readme",
   "bugs": {
-    "url": "https://github.com/SinghNirmal01/chesschemy/issues"
+    "url": "https://github.com/ognirmal/chesschemy/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SinghNirmal01/chesschemy.git"
+    "url": "git+https://github.com/ognirmal/chesschemy.git"
   },
   "publishConfig": {
     "access": "public"

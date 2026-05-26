@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+- Fixed package repository, homepage, issue, and README badge links after the GitHub account rename.
+
 ## 0.4.0
 
 - Added standard chess FEN import/export helpers.

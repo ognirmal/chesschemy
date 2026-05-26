@@ -1,5 +1,11 @@
 # Chesschemy Engine
 
+[![npm version](https://img.shields.io/npm/v/chesschemy.svg)](https://www.npmjs.com/package/chesschemy)
+[![CI](https://github.com/ognirmal/chesschemy/actions/workflows/ci.yml/badge.svg)](https://github.com/ognirmal/chesschemy/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-ready-3178c6.svg)](https://www.typescriptlang.org/)
+[![npm provenance](https://img.shields.io/badge/npm-provenance-2f855a.svg)](https://github.com/ognirmal/chesschemy/actions/workflows/publish.yml)
+
 TypeScript-first chess and chess-variant engine package.
 
 Chesschemy provides a deterministic engine core for standard chess today, with
