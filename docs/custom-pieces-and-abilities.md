@@ -14,7 +14,9 @@ Use `definePiece` with movement helpers such as `stepper`, `slider`, or
 as standard pieces.
 
 ```ts
-import { createVariantGame, definePiece, stepper } from 'chesschemy';
+import { createVariantGame } from 'chesschemy';
+import { stepper } from 'chesschemy/movement';
+import { definePiece } from 'chesschemy/pieces';
 
 const teleporter = definePiece({
   id: 'teleporter',
@@ -49,7 +51,9 @@ Active abilities are invoked with `useAbility`. Target rules describe whether a
 target is required, how far it can be, and what occupancy it must satisfy.
 
 ```ts
-import { definePiece, teleportSourceToTarget, useAbility } from 'chesschemy';
+import { useAbility } from 'chesschemy/abilities';
+import { teleportSourceToTarget } from 'chesschemy/effects';
+import { definePiece } from 'chesschemy/pieces';
 
 const wizard = definePiece({
   id: 'wizard',
@@ -86,7 +90,8 @@ Stationary pieces are normal pieces with `canMove: false`. They can still own
 abilities, receive statuses, and serialize as runtime state.
 
 ```ts
-import { addTargetStatus, definePiece } from 'chesschemy';
+import { addTargetStatus } from 'chesschemy/effects';
+import { definePiece } from 'chesschemy/pieces';
 
 const freezeTower = definePiece({
   id: 'freeze-tower',
@@ -122,8 +127,10 @@ Triggered abilities run from deterministic engine events. The example below
 removes the source piece after it captures another piece.
 
 ```ts
-import type { AbilityDefinition } from 'chesschemy';
-import { definePiece, removeSource, stepper } from 'chesschemy';
+import type { AbilityDefinition } from 'chesschemy/abilities';
+import { removeSource } from 'chesschemy/effects';
+import { stepper } from 'chesschemy/movement';
+import { definePiece } from 'chesschemy/pieces';
 
 const vanishAfterCapture: AbilityDefinition = {
   id: 'vanish-after-capture',
@@ -160,7 +167,7 @@ This supports shield-style mechanics where a piece protects nearby allies from
 being captured.
 
 ```ts
-import type { AbilityDefinition } from 'chesschemy';
+import type { AbilityDefinition } from 'chesschemy/abilities';
 
 const shieldAdjacentAlly: AbilityDefinition = {
   id: 'shield-adjacent-ally',
@@ -189,7 +196,7 @@ ability callbacks, and effect functions are intentionally not included in the
 serialized payload. Reattach definitions when restoring.
 
 ```ts
-import { deserializeGameState, serializeGameState } from 'chesschemy';
+import { deserializeGameState, serializeGameState } from 'chesschemy/serialization';
 
 const saved = serializeGameState(game);
 const restored = deserializeGameState(saved, {

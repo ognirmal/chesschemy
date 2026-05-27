@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.0 - 2026-05-27
+
+### Added
+
+- Added package subpath exports for public domain APIs, including `chesschemy/abilities`, `chesschemy/core`, `chesschemy/effects`, `chesschemy/events`, `chesschemy/movement`, `chesschemy/pieces`, `chesschemy/presets`, `chesschemy/queries`, `chesschemy/rules`, `chesschemy/serialization`, `chesschemy/statuses`, and `chesschemy/validation`.
+
+### Docs
+
+- Updated focused ability, effect, status, piece, and movement examples to prefer domain imports while keeping root `chesschemy` imports documented for broad workflows.
+
 ## 0.5.0 - 2026-05-27
 
 ### Changed

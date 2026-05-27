@@ -10,7 +10,7 @@ The first supported passive hook is `canCapture`. It lets a passive ability
 allow or deny a capture before the move is generated.
 
 ```ts
-import type { AbilityDefinition } from 'chesschemy';
+import type { AbilityDefinition } from 'chesschemy/abilities';
 
 const shieldAdjacentAlly: AbilityDefinition = {
   id: 'shield-adjacent-ally',

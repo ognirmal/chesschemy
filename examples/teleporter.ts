@@ -1,12 +1,9 @@
-import {
-  createVariantGame,
-  definePiece,
-  getPieceAt,
-  stepper,
-  teleportSourceToTarget,
-  useAbility,
-  validateAbility,
-} from 'chesschemy';
+import { useAbility, validateAbility } from 'chesschemy/abilities';
+import { createVariantGame } from 'chesschemy/core';
+import { teleportSourceToTarget } from 'chesschemy/effects';
+import { stepper } from 'chesschemy/movement';
+import { definePiece } from 'chesschemy/pieces';
+import { getPieceAt } from 'chesschemy/queries';
 
 const teleporter = definePiece({
   id: 'teleporter',

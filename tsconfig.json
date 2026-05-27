@@ -17,7 +17,19 @@
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
     "paths": {
-      "chesschemy": ["./src/index.ts"]
+      "chesschemy": ["./src/index.ts"],
+      "chesschemy/abilities": ["./src/abilities/index.ts"],
+      "chesschemy/core": ["./src/core/index.ts"],
+      "chesschemy/effects": ["./src/effects/index.ts"],
+      "chesschemy/events": ["./src/events/index.ts"],
+      "chesschemy/movement": ["./src/movement/index.ts"],
+      "chesschemy/pieces": ["./src/pieces/index.ts"],
+      "chesschemy/presets": ["./src/presets/index.ts"],
+      "chesschemy/queries": ["./src/queries/index.ts"],
+      "chesschemy/rules": ["./src/rules/index.ts"],
+      "chesschemy/serialization": ["./src/serialization/index.ts"],
+      "chesschemy/statuses": ["./src/statuses/index.ts"],
+      "chesschemy/validation": ["./src/validation/index.ts"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,

@@ -1,5 +1,9 @@
-import type { AbilityDefinition } from 'chesschemy';
-import { createVariantGame, definePiece, makeMove, removeSource, stepper } from 'chesschemy';
+import type { AbilityDefinition } from 'chesschemy/abilities';
+import { createVariantGame } from 'chesschemy/core';
+import { removeSource } from 'chesschemy/effects';
+import { stepper } from 'chesschemy/movement';
+import { definePiece } from 'chesschemy/pieces';
+import { makeMove } from 'chesschemy/rules';
 
 const vanishAfterCapture: AbilityDefinition = {
   id: 'vanish-after-capture',

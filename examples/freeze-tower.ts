@@ -1,11 +1,9 @@
-import {
-  addTargetStatus,
-  createVariantGame,
-  definePiece,
-  generateLegalMoves,
-  hasPieceStatus,
-  useAbility,
-} from 'chesschemy';
+import { useAbility } from 'chesschemy/abilities';
+import { createVariantGame } from 'chesschemy/core';
+import { addTargetStatus } from 'chesschemy/effects';
+import { definePiece } from 'chesschemy/pieces';
+import { generateLegalMoves } from 'chesschemy/rules';
+import { hasPieceStatus } from 'chesschemy/statuses';
 
 const freezeTower = definePiece({
   id: 'freeze-tower',

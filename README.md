@@ -92,7 +92,9 @@ const game = createGame();
 ### Create a Custom Variant
 
 ```ts
-import { createVariantGame, definePiece, stepper } from 'chesschemy';
+import { createVariantGame } from 'chesschemy';
+import { stepper } from 'chesschemy/movement';
+import { definePiece } from 'chesschemy/pieces';
 
 const wizard = definePiece({
   id: 'wizard',
@@ -134,7 +136,8 @@ const game = createVariantGame({
 ### Query the Board
 
 ```ts
-import { getPieceAt, getActivePlayerPieces, getLegalMovesForPiece } from 'chesschemy';
+import { getLegalMovesForPiece } from 'chesschemy/rules';
+import { getActivePlayerPieces, getPieceAt } from 'chesschemy/queries';
 
 const king = getPieceAt(game, { file: 5, rank: 1 });
 const activePieces = getActivePlayerPieces(game);
@@ -144,7 +147,7 @@ const pawnMoves = getLegalMovesForPiece(game, 'white-pawn-5');
 ### Validate and Apply Moves
 
 ```ts
-import { makeMove, validateMove } from 'chesschemy';
+import { makeMove, validateMove } from 'chesschemy/rules';
 
 const input = {
   pieceId: 'white-pawn-5',
@@ -164,7 +167,9 @@ if (validation.valid) {
 ### Use Active Abilities
 
 ```ts
-import { definePiece, teleportSourceToTarget, useAbility } from 'chesschemy';
+import { useAbility } from 'chesschemy/abilities';
+import { teleportSourceToTarget } from 'chesschemy/effects';
+import { definePiece } from 'chesschemy/pieces';
 
 const wizard = definePiece({
   id: 'wizard',
@@ -195,7 +200,8 @@ non-chess self-check behavior.
 ### Statuses and Cooldowns
 
 ```ts
-import { addTargetStatus, hasAbilityCooldown, setSourceAbilityCooldown } from 'chesschemy';
+import { addTargetStatus } from 'chesschemy/effects';
+import { hasAbilityCooldown, setSourceAbilityCooldown } from 'chesschemy/statuses';
 
 const freeze = {
   id: 'freeze',
@@ -230,7 +236,12 @@ statuses are rejected by validation.
 ### Serialization
 
 ```ts
-import { deserializeGameState, deserializeFen, serializeFen, serializeGameState } from 'chesschemy';
+import {
+  deserializeFen,
+  deserializeGameState,
+  serializeFen,
+  serializeGameState,
+} from 'chesschemy/serialization';
 
 const serialized = serializeGameState(game);
 const restored = deserializeGameState(serialized, {

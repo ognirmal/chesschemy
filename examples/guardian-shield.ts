@@ -1,5 +1,8 @@
-import type { AbilityDefinition, Coordinate } from 'chesschemy';
-import { createVariantGame, definePiece, generateLegalMoves } from 'chesschemy';
+import type { AbilityDefinition } from 'chesschemy/abilities';
+import type { Coordinate } from 'chesschemy/core';
+import { createVariantGame } from 'chesschemy/core';
+import { definePiece } from 'chesschemy/pieces';
+import { generateLegalMoves } from 'chesschemy/rules';
 
 const shieldAdjacentAlly: AbilityDefinition = {
   id: 'shield-adjacent-ally',
