@@ -16,6 +16,7 @@ import {
   setSourceAbilityCooldown,
   useAbility,
   validateAbility,
+  withAddedPieceStatus,
 } from '../../src/index.js';
 
 describe('statuses', () => {
@@ -111,6 +112,14 @@ describe('statuses', () => {
       valid: false,
       reason: 'Ability blink cannot be activated.',
     });
+  });
+
+  it('does not add statuses to kings', () => {
+    const king = piece('white-king', 'king', 'white', { file: 1, rank: 1 });
+    const nextKing = withAddedPieceStatus(king, { id: 'frozen', duration: 1 });
+
+    expect(nextKing).toBe(king);
+    expect(hasPieceStatus(nextKing, 'frozen')).toBe(false);
   });
 });
 

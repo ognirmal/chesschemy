@@ -19,14 +19,15 @@ describe('game state serialization', () => {
   it('preserves JSON-friendly piece statuses', () => {
     const state = gameState([
       piece(
-        'white-king',
-        'king',
+        'white-rook',
+        'rook',
         'white',
-        { file: 1, rank: 1 },
+        { file: 1, rank: 2 },
         {
           statuses: [{ id: 'shielded', duration: 2, data: { source: 'test' } }],
         },
       ),
+      piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
       piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
     ]);
 
@@ -39,19 +40,20 @@ describe('game state serialization', () => {
   it('rejects malformed statuses', () => {
     const state = gameState([
       piece(
-        'white-king',
-        'king',
+        'white-rook',
+        'rook',
         'white',
-        { file: 1, rank: 1 },
+        { file: 1, rank: 2 },
         {
           statuses: [{ id: 'bad', duration: 0 }],
         },
       ),
+      piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
       piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
     ]);
 
     expect(() => serializeGameState(state)).toThrow(
-      'Piece white-king status 0 duration must be a positive integer.',
+      'Piece white-rook status 0 duration must be a positive integer.',
     );
   });
 

@@ -3,6 +3,9 @@
 Chesschemy variants are built from piece definitions, movement patterns,
 abilities, effects, and JSON-friendly runtime state. The engine keeps rule
 resolution deterministic and leaves balance decisions to the variant author.
+The current engine validates two-player, king-based games: each side must have
+exactly one `king`, kings cannot be adjacent, and generated legal moves never
+capture kings.
 
 ## Define A Moving Piece
 
@@ -72,6 +75,11 @@ const nextGame = useAbility(game, {
 Unless `consumesTurn` is set to `false`, active abilities advance the turn and
 record an ability action in history.
 
+Active abilities also obey king safety by default. After an ability's effects
+resolve, the acting player's king must not be in check, even when
+`consumesTurn: false`. Set `allowsSelfCheck: true` only for variants that
+intentionally allow this non-chess behavior.
+
 ## Create A Stationary Piece
 
 Stationary pieces are normal pieces with `canMove: false`. They can still own
@@ -98,6 +106,15 @@ const freezeTower = definePiece({
 
 Pieces with a `frozen` status generate no legal moves. Finite statuses tick down
 when their owner ends a turn.
+
+`PieceInstance.state` is JSON runtime state for a piece. Statuses are stored in
+`state.statuses`; `PieceStatus.data` is optional JSON metadata for an individual
+status.
+
+Kings are immune to statuses and built-in effects. If an ability targets a king
+with helpers such as `addTargetStatus`, `removeTargetPiece`, or
+`updateTargetPieceState`, the king is left unchanged. Persisted game states that
+already contain statuses on kings fail validation.
 
 ## React To Events
 
@@ -127,6 +144,14 @@ const assassin = definePiece({
 
 Current engine events include accepted actions, moved pieces, captured pieces,
 used abilities, removed pieces, and ended turns.
+
+Triggered abilities follow the same royal immunity rule for built-in effects:
+`removeSource` will not remove a king, and source/target state or status helpers
+will not mutate kings.
+
+Triggered abilities also use the same king-safety default as active abilities:
+they are rejected if their effects leave the source player's king in check,
+unless the ability sets `allowsSelfCheck: true`.
 
 ## Add Passive Protection
 

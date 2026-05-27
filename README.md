@@ -1,15 +1,22 @@
 # Chesschemy Engine
 
-[![npm version](https://img.shields.io/npm/v/chesschemy.svg)](https://www.npmjs.com/package/chesschemy)
-[![CI](https://github.com/ognirmal/chesschemy/actions/workflows/ci.yml/badge.svg)](https://github.com/ognirmal/chesschemy/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-ready-3178c6.svg)](https://www.typescriptlang.org/)
-[![npm provenance](https://img.shields.io/badge/npm-provenance-2f855a.svg)](https://github.com/ognirmal/chesschemy/actions/workflows/publish.yml)
+[![npm version](https://img.shields.io/npm/v/chesschemy.svg?style=flat-square)](https://www.npmjs.com/package/chesschemy)
+[![npm downloads](https://img.shields.io/npm/dm/chesschemy.svg?style=flat-square)](https://www.npmjs.com/package/chesschemy)
+[![total downloads](https://img.shields.io/npm/dt/chesschemy.svg?style=flat-square)](https://www.npmjs.com/package/chesschemy)
+[![types](https://img.shields.io/npm/types/chesschemy.svg?style=flat-square)](https://www.npmjs.com/package/chesschemy)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/chesschemy?style=flat-square)](https://bundlephobia.com/package/chesschemy)
+[![CI](https://img.shields.io/github/actions/workflow/status/ognirmal/chesschemy/ci.yml?branch=main&label=CI&style=flat-square)](https://github.com/ognirmal/chesschemy/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![npm provenance](https://img.shields.io/badge/npm-provenance-2f855a.svg?style=flat-square)](https://github.com/ognirmal/chesschemy/actions/workflows/publish.yml)
 
 TypeScript-first chess and chess-variant engine package.
 
 Chesschemy provides a deterministic engine core for standard chess today, with
 module boundaries for custom pieces, abilities, effects, and variant rules.
+The current rules engine is intentionally two-player and king-based: validated
+games must have exactly two players and exactly one `king` piece for each
+player.
 
 ## Features
 
@@ -39,6 +46,13 @@ For local development in this repository:
 ```sh
 npm install
 ```
+
+## Package
+
+- Runtime: Node.js 20 or newer
+- Module formats: ESM and CommonJS
+- Types: generated TypeScript declarations included
+- Tree-shaking: package is marked side-effect free
 
 ## Quick Start
 
@@ -173,6 +187,11 @@ const nextGame = useAbility(game, {
 });
 ```
 
+Active and triggered abilities use chess legality by default: after their
+effects resolve, the source player's king must not be left in check. Set
+`allowsSelfCheck: true` on an ability only for variants that intentionally allow
+non-chess self-check behavior.
+
 ### Statuses and Cooldowns
 
 ```ts
@@ -198,6 +217,15 @@ const blink = {
 Pieces with a `frozen` status do not generate legal moves. Finite statuses tick
 down when their owner's turn ends and are removed when their duration reaches
 zero.
+
+`PieceInstance.state` is JSON runtime state owned by a piece. Status entries live
+under `state.statuses`; `PieceStatus.data` is optional JSON metadata for a
+specific status.
+
+Kings are immune to built-in effects and statuses. Built-in effect helpers such
+as `removeTargetPiece`, `teleportSourceToTarget`, `updateTargetPieceState`, and
+`addTargetStatus` leave kings unchanged, and serialized game states with king
+statuses are rejected by validation.
 
 ### Serialization
 
@@ -269,9 +297,10 @@ npm run format
 ## Current Status
 
 The standard chess base is ready for development use. Custom pieces and active
-ability execution are available as extension APIs, and triggered abilities can
-react to deterministic engine events. Statuses and cooldowns are available for
-temporary effects. Standard FEN import/export is available for normal chess
-positions. Passive capture-rule hooks are available for shield-style mechanics.
-Future work will focus on richer draw rules, broader examples, and deeper passive
-ability handling.
+ability execution are available as extension APIs within the current two-player,
+king-based rules boundary, and triggered abilities can react to deterministic
+engine events. Statuses and cooldowns are available for temporary effects.
+Standard FEN import/export is available for normal chess positions. Passive
+capture-rule hooks are available for shield-style mechanics. Future work will
+focus on richer draw rules, broader examples, and deeper passive ability
+handling.

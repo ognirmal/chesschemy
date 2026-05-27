@@ -5,11 +5,11 @@ import type {
   PlayerId,
   PseudoLegalMove,
 } from '../../src/index.js';
+import { createGame } from '../../src/index.js';
 import {
-  createGame,
   generatePseudoLegalMoves,
   generatePseudoLegalMovesForPiece,
-} from '../../src/index.js';
+} from '../../src/movement/standardMoveGeneration.js';
 
 describe('standard pseudo-legal move generation', () => {
   it('generates 20 active-player moves from the standard initial position', () => {

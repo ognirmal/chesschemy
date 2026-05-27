@@ -6,12 +6,12 @@ import type {
   PseudoLegalMove,
 } from '../../src/index.js';
 import {
-  applyMove,
   createGame,
   generateLegalMoves,
   isKingInCheck,
   isSquareAttacked,
 } from '../../src/index.js';
+import { applyMove } from '../../src/rules/applyMove.js';
 
 describe('legal move generation', () => {
   it('keeps the standard initial position at 20 legal moves', () => {
@@ -55,6 +55,32 @@ describe('legal move generation', () => {
     expect(
       moveTargets(generateLegalMoves(state).filter((move) => move.pieceId === 'white-king')),
     ).toEqual(['3,3', '3,4', '3,5', '4,3', '4,5']);
+  });
+
+  it('does not generate captures against enemy kings', () => {
+    const state = gameState([
+      piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+      piece('white-rook', 'rook', 'white', { file: 5, rank: 1 }),
+      piece('black-king', 'king', 'black', { file: 5, rank: 8 }),
+    ]);
+
+    const moves = generateLegalMoves(state).filter((move) => move.pieceId === 'white-rook');
+
+    expect(moves.some((move) => move.capturePieceId === 'black-king')).toBe(false);
+    expect(moveTargets(moves)).not.toContain('5,8');
+    expect(isKingInCheck(state, 'black')).toBe(true);
+  });
+
+  it('does not generate king captures when kings are adjacent', () => {
+    const state = gameState([
+      piece('white-king', 'king', 'white', { file: 4, rank: 4 }),
+      piece('black-king', 'king', 'black', { file: 5, rank: 5 }),
+    ]);
+
+    const moves = generateLegalMoves(state).filter((move) => move.pieceId === 'white-king');
+
+    expect(moves.some((move) => move.capturePieceId === 'black-king')).toBe(false);
+    expect(moveTargets(moves)).not.toContain('5,5');
   });
 
   it('detects pawn attacks separately from pawn forward movement', () => {
@@ -102,6 +128,24 @@ describe('legal move generation', () => {
     expect(nextState.history).toEqual([
       { kind: 'move', pieceId: 'white-rook', to: { file: 1, rank: 8 } },
     ]);
+  });
+
+  it('rejects explicit king-capture move application', () => {
+    const state = gameState([
+      piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+      piece('white-rook', 'rook', 'white', { file: 5, rank: 1 }),
+      piece('black-king', 'king', 'black', { file: 5, rank: 8 }),
+    ]);
+
+    expect(() => {
+      applyMove(state, {
+        kind: 'move',
+        pieceId: 'white-rook',
+        from: { file: 5, rank: 1 },
+        to: { file: 5, rank: 8 },
+        capturePieceId: 'black-king',
+      });
+    }).toThrow('Cannot capture a king: black-king');
   });
 });
 

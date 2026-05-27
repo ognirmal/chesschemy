@@ -1,9 +1,10 @@
-import { coordinateKey, isCoordinateInsideBoard } from '../core/coordinates.js';
+import { coordinateKey, isCoordinateInsideBoard, sameCoordinate } from '../core/coordinates.js';
 import { ValidationError } from '../core/errors.js';
 import type { GameState, PieceInstance } from '../core/types.js';
 import type { AbilityDefinition } from '../abilities/abilityDefinition.js';
 import type { PieceDefinition } from '../pieces/pieceDefinition.js';
 import { standardPieces } from '../pieces/standardPieces.js';
+import { isKingInCheck } from '../rules/attackDetection.js';
 
 export function validateGameState(state: GameState): void {
   if (state.board.files < 1 || state.board.ranks < 1) {
@@ -45,6 +46,9 @@ export function validateGameState(state: GameState): void {
     occupied.add(key);
     validatePieceState(piece);
   }
+
+  validateRuleEvaluatedState(state);
+  validateStandardChessState(state);
 }
 
 function validateTurnState(state: GameState): void {
@@ -123,6 +127,97 @@ function validateAbilityDefinition(definition: PieceDefinition, ability: Ability
   ) {
     throw new ValidationError(`${path} target range must be a non-negative number.`);
   }
+
+  if (ability.allowsSelfCheck !== undefined && typeof ability.allowsSelfCheck !== 'boolean') {
+    throw new ValidationError(`${path} allowsSelfCheck must be a boolean.`);
+  }
+}
+
+function validateRuleEvaluatedState(state: GameState): void {
+  const players = [...new Set(state.pieces.map((piece) => piece.owner))].sort();
+
+  if (players.length !== 2) {
+    throw new ValidationError('Chesschemy requires exactly two players.');
+  }
+
+  for (const playerId of players) {
+    const kings = state.pieces.filter(
+      (piece) => piece.owner === playerId && piece.definitionId === 'king',
+    );
+
+    if (kings.length !== 1) {
+      throw new ValidationError(
+        `Player ${playerId} must have exactly one king; found ${String(kings.length)}.`,
+      );
+    }
+  }
+
+  const [firstKing, secondKing] = state.pieces
+    .filter((piece) => piece.definitionId === 'king')
+    .sort((left, right) => left.owner.localeCompare(right.owner));
+
+  if (firstKing === undefined || secondKing === undefined) {
+    return;
+  }
+
+  if (areKingsAdjacent(firstKing, secondKing)) {
+    throw new ValidationError('Kings cannot occupy adjacent squares.');
+  }
+
+  const checkedPlayers = players.filter((playerId) => isKingInCheck(state, playerId));
+  if (checkedPlayers.length === 2) {
+    throw new ValidationError('Both kings cannot be in check.');
+  }
+}
+
+function validateStandardChessState(state: GameState): void {
+  if (state.standard === undefined) {
+    return;
+  }
+
+  if (!isPlainObject(state.standard.castlingRights)) {
+    throw new ValidationError('Standard castling rights must be a JSON object.');
+  }
+
+  const players = [...new Set(state.pieces.map((piece) => piece.owner))].sort();
+  const castlingPlayers = Object.keys(state.standard.castlingRights).sort();
+
+  if (
+    castlingPlayers.length !== players.length ||
+    castlingPlayers.some((playerId, index) => playerId !== players[index])
+  ) {
+    throw new ValidationError('Standard castling rights must match the current players.');
+  }
+
+  for (const [playerId, rights] of Object.entries(state.standard.castlingRights)) {
+    if (
+      rights === undefined ||
+      typeof rights.kingSide !== 'boolean' ||
+      typeof rights.queenSide !== 'boolean'
+    ) {
+      throw new ValidationError(
+        `Standard castling rights for ${playerId} must include boolean kingSide and queenSide values.`,
+      );
+    }
+  }
+
+  if (
+    state.standard.enPassantTarget !== undefined &&
+    !isCoordinateInsideBoard(state.standard.enPassantTarget, state.board)
+  ) {
+    throw new ValidationError('Standard en passant target must be inside the board.');
+  }
+}
+
+function areKingsAdjacent(firstKing: PieceInstance, secondKing: PieceInstance): boolean {
+  if (sameCoordinate(firstKing.position, secondKing.position)) {
+    return true;
+  }
+
+  return (
+    Math.abs(firstKing.position.file - secondKing.position.file) <= 1 &&
+    Math.abs(firstKing.position.rank - secondKing.position.rank) <= 1
+  );
 }
 
 function validatePieceState(piece: PieceInstance): void {
@@ -146,6 +241,10 @@ function validatePieceStatuses(piece: PieceInstance): void {
   const statuses = piece.state.statuses;
   if (!Array.isArray(statuses)) {
     throw new ValidationError(`Piece ${piece.id} statuses must be an array.`);
+  }
+
+  if (piece.definitionId === 'king' && statuses.length > 0) {
+    throw new ValidationError(`King ${piece.id} cannot have statuses.`);
   }
 
   statuses.forEach((status, index) => {

@@ -13,6 +13,7 @@ import { resolveTriggeredAbilities } from '../events/resolveTriggeredAbilities.j
 import { findPieceAt } from '../movement/boardQueries.js';
 import type { PieceDefinition } from '../pieces/pieceDefinition.js';
 import { getGameOutcome } from '../rules/gameOutcome.js';
+import { isKingInCheck } from '../rules/attackDetection.js';
 import type { AbilityContext, AbilityDefinition, AbilityTargetRules } from './abilityDefinition.js';
 
 export interface AbilityInput {
@@ -93,6 +94,14 @@ export function validateAbility(state: GameState, input: AbilityInput): AbilityV
     };
   }
 
+  const effectedState = applyAbilityEffects(state, source, ability, action);
+  if (ability.allowsSelfCheck !== true && isKingInCheck(effectedState, source.owner)) {
+    return {
+      valid: false,
+      reason: `Ability ${input.abilityId} would leave ${source.owner}'s king in check.`,
+    };
+  }
+
   return { valid: true, action, ability };
 }
 
@@ -110,18 +119,12 @@ export function useAbility(state: GameState, input: AbilityInput): GameState {
     );
   }
 
-  const baseContext = {
-    state,
-    source,
-    ability: validation.ability,
-    action: validation.action,
-    ...(validation.action.target === undefined ? {} : { target: validation.action.target }),
-  };
-
-  const effectedState = validation.ability.effects.reduce(
-    (nextState, effect) => effect.apply({ ...baseContext, state: nextState }),
-    state,
-  );
+  const effectedState = applyAbilityEffects(state, source, validation.ability, validation.action);
+  if (validation.ability.allowsSelfCheck !== true && isKingInCheck(effectedState, source.owner)) {
+    throw new ValidationError(
+      `Ability ${validation.action.abilityId} would leave ${source.owner}'s king in check.`,
+    );
+  }
 
   const nextPlayer = getNextPlayer(effectedState, source.owner);
   const nextState = {
@@ -150,6 +153,26 @@ export function useAbility(state: GameState, input: AbilityInput): GameState {
         validation.ability.consumesTurn !== false,
       ),
     ),
+  );
+}
+
+function applyAbilityEffects(
+  state: GameState,
+  source: PieceInstance,
+  ability: AbilityDefinition,
+  action: AbilityAction,
+): GameState {
+  const baseContext = {
+    state,
+    source,
+    ability,
+    action,
+    ...(action.target === undefined ? {} : { target: action.target }),
+  };
+
+  return ability.effects.reduce(
+    (nextState, effect) => effect.apply({ ...baseContext, state: nextState }),
+    state,
   );
 }
 

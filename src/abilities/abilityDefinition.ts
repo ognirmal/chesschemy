@@ -37,6 +37,7 @@ export interface AbilityDefinition {
   readonly kind: AbilityKind;
   readonly displayName: string;
   readonly consumesTurn?: boolean;
+  readonly allowsSelfCheck?: boolean;
   readonly target?: AbilityTargetRules;
   readonly effects: readonly EffectDefinition[];
   canActivate?(context: AbilityContext): boolean;

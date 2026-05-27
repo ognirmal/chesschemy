@@ -16,6 +16,10 @@ export interface MoveGenerationOptions {
   readonly playerId?: PlayerId;
 }
 
+export interface PieceMoveGenerationOptions {
+  readonly includeKingCaptureTargets?: boolean;
+}
+
 const diagonalDirections = [
   [1, 1],
   [1, -1],
@@ -59,6 +63,7 @@ export function generatePseudoLegalMoves(
 export function generatePseudoLegalMovesForPiece(
   state: GameState,
   piece: PieceInstance,
+  options: PieceMoveGenerationOptions = {},
 ): readonly PseudoLegalMove[] {
   if (hasPieceStatus(piece, 'frozen')) {
     return [];
@@ -66,25 +71,31 @@ export function generatePseudoLegalMovesForPiece(
 
   switch (piece.definitionId) {
     case 'pawn':
-      return generatePawnMoves(state, piece);
+      return generatePawnMoves(state, piece, options);
     case 'knight':
-      return generateLeaperMoves(state, piece, knightOffsets);
+      return generateLeaperMoves(state, piece, knightOffsets, options);
     case 'bishop':
-      return generateSlidingMoves(state, piece, diagonalDirections);
+      return generateSlidingMoves(state, piece, diagonalDirections, options);
     case 'rook':
-      return generateSlidingMoves(state, piece, orthogonalDirections);
+      return generateSlidingMoves(state, piece, orthogonalDirections, options);
     case 'queen':
-      return generateSlidingMoves(state, piece, [...diagonalDirections, ...orthogonalDirections]);
+      return generateSlidingMoves(
+        state,
+        piece,
+        [...diagonalDirections, ...orthogonalDirections],
+        options,
+      );
     case 'king':
-      return generateLeaperMoves(state, piece, kingOffsets);
+      return generateLeaperMoves(state, piece, kingOffsets, options);
     default:
-      return generateCustomPieceMoves(state, piece);
+      return generateCustomPieceMoves(state, piece, options);
   }
 }
 
 function generateCustomPieceMoves(
   state: GameState,
   piece: PieceInstance,
+  options: PieceMoveGenerationOptions,
 ): readonly PseudoLegalMove[] {
   const definition = getPieceDefinition(state, piece.definitionId);
   if (definition === undefined) {
@@ -103,7 +114,9 @@ function generateCustomPieceMoves(
     ) ??
     [];
 
-  return candidates.flatMap((candidate) => createCustomMove(state, piece, definition, candidate));
+  return candidates.flatMap((candidate) =>
+    createCustomMove(state, piece, definition, candidate, options),
+  );
 }
 
 function createCustomMove(
@@ -111,6 +124,7 @@ function createCustomMove(
   piece: PieceInstance,
   definition: PieceDefinition,
   candidate: MoveCandidate,
+  options: PieceMoveGenerationOptions,
 ): readonly PseudoLegalMove[] {
   if (!isCoordinateInsideBoard(candidate.to, state.board)) {
     return [];
@@ -133,10 +147,18 @@ function createCustomMove(
     return [];
   }
 
+  if (isKingCaptureTarget(occupiedPiece, options)) {
+    return [];
+  }
+
   return [createMove(piece, candidate.to, occupiedPiece?.id)];
 }
 
-function generatePawnMoves(state: GameState, piece: PieceInstance): readonly PseudoLegalMove[] {
+function generatePawnMoves(
+  state: GameState,
+  piece: PieceInstance,
+  options: PieceMoveGenerationOptions,
+): readonly PseudoLegalMove[] {
   const moves: PseudoLegalMove[] = [];
   const direction = getPawnDirection(piece.owner);
   const startingRank = getPawnStartingRank(piece.owner);
@@ -171,7 +193,8 @@ function generatePawnMoves(state: GameState, piece: PieceInstance): readonly Pse
     if (
       capturedPiece !== undefined &&
       capturedPiece.owner !== piece.owner &&
-      canCaptureTarget(state, piece, capturedPiece)
+      canCaptureTarget(state, piece, capturedPiece) &&
+      !isKingCaptureTarget(capturedPiece, options)
     ) {
       moves.push(...createPawnMoves(piece, target, promotionRank, capturedPiece.id));
       continue;
@@ -201,16 +224,18 @@ function generateLeaperMoves(
   state: GameState,
   piece: PieceInstance,
   offsets: readonly (readonly [number, number])[],
+  options: PieceMoveGenerationOptions,
 ): readonly PseudoLegalMove[] {
   return offsets
     .map(([fileOffset, rankOffset]) => offsetCoordinate(piece.position, fileOffset, rankOffset))
-    .flatMap((target) => createLeaperMove(state, piece, target));
+    .flatMap((target) => createLeaperMove(state, piece, target, options));
 }
 
 function createLeaperMove(
   state: GameState,
   piece: PieceInstance,
   target: Coordinate,
+  options: PieceMoveGenerationOptions,
 ): readonly PseudoLegalMove[] {
   if (!isTargetAvailable(state.pieces, target, piece.owner, state.board)) {
     return [];
@@ -221,6 +246,10 @@ function createLeaperMove(
     return [];
   }
 
+  if (isKingCaptureTarget(capturedPiece, options)) {
+    return [];
+  }
+
   return [createMove(piece, target, capturedPiece?.id)];
 }
 
@@ -228,6 +257,7 @@ function generateSlidingMoves(
   state: GameState,
   piece: PieceInstance,
   directions: readonly (readonly [number, number])[],
+  options: PieceMoveGenerationOptions,
 ): readonly PseudoLegalMove[] {
   const moves: PseudoLegalMove[] = [];
 
@@ -243,7 +273,11 @@ function generateSlidingMoves(
         continue;
       }
 
-      if (occupiedPiece.owner !== piece.owner && canCaptureTarget(state, piece, occupiedPiece)) {
+      if (
+        occupiedPiece.owner !== piece.owner &&
+        canCaptureTarget(state, piece, occupiedPiece) &&
+        !isKingCaptureTarget(occupiedPiece, options)
+      ) {
         moves.push(createMove(piece, target, occupiedPiece.id));
       }
 
@@ -308,4 +342,11 @@ function getPawnPromotionRank(owner: PlayerId, boardRanks: number): number {
 
 function getPieceDefinition(state: GameState, definitionId: string): PieceDefinition | undefined {
   return state.pieceDefinitions?.find((definition) => definition.id === definitionId);
+}
+
+function isKingCaptureTarget(
+  piece: PieceInstance | undefined,
+  options: PieceMoveGenerationOptions,
+): boolean {
+  return piece?.definitionId === 'king' && options.includeKingCaptureTargets !== true;
 }

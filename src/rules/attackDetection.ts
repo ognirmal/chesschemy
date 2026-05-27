@@ -76,9 +76,9 @@ function doesPieceAttackSquare(
     case 'king':
       return doesLeaperAttackSquare(state, piece, square, kingOffsets);
     default:
-      return generatePseudoLegalMovesForPiece(state, piece).some((move) =>
-        sameCoordinate(move.to, square),
-      );
+      return generatePseudoLegalMovesForPiece(state, piece, {
+        includeKingCaptureTargets: true,
+      }).some((move) => sameCoordinate(move.to, square));
   }
 }
 

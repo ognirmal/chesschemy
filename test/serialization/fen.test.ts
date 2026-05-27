@@ -83,7 +83,8 @@ describe('FEN serialization', () => {
       serializeFen({
         ...gameState(
           [
-            piece('white-wizard', 'wizard', 'white', { file: 1, rank: 1 }),
+            piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+            piece('white-wizard', 'wizard', 'white', { file: 2, rank: 1 }),
             piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
           ],
           'white',

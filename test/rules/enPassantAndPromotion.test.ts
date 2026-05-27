@@ -5,7 +5,8 @@ import type {
   PlayerId,
   PseudoLegalMove,
 } from '../../src/index.js';
-import { applyMove, generateLegalMoves, ValidationError } from '../../src/index.js';
+import { generateLegalMoves, ValidationError } from '../../src/index.js';
+import { applyMove } from '../../src/rules/applyMove.js';
 
 describe('en passant and promotion', () => {
   it('sets an en passant target after a two-square pawn move', () => {

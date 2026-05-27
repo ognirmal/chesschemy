@@ -37,6 +37,10 @@ export function teleportSourceToTarget(options: EffectOptions = {}): EffectDefin
     description: options.description ?? 'Move the source piece to the target square.',
     apply(context) {
       const target = requireTarget(context);
+      if (isEffectImmunePiece(context.source)) {
+        return context.state;
+      }
+
       validateTargetInsideBoard(context.state, target);
 
       const occupiedPiece = findPieceAt(context.state.pieces, target);
@@ -59,6 +63,10 @@ export function removeSource(options: EffectOptions = {}): EffectDefinition {
     id: options.id ?? 'remove-source',
     description: options.description ?? 'Remove the source piece from the board.',
     apply(context) {
+      if (isEffectImmunePiece(context.source)) {
+        return context.state;
+      }
+
       return {
         ...context.state,
         pieces: context.state.pieces.filter((piece) => piece.id !== context.source.id),
@@ -79,6 +87,10 @@ export function removeTargetPiece(options: EffectOptions = {}): EffectDefinition
         throw new ValidationError(`No piece exists at target square: ${targetKey(target)}`);
       }
 
+      if (isEffectImmunePiece(targetPiece)) {
+        return context.state;
+      }
+
       return {
         ...context.state,
         pieces: context.state.pieces.filter((piece) => piece.id !== targetPiece.id),
@@ -95,6 +107,10 @@ export function updateSourceState(
     id: options.id ?? 'update-source-state',
     description: options.description ?? 'Merge state into the source piece.',
     apply(context) {
+      if (isEffectImmunePiece(context.source)) {
+        return context.state;
+      }
+
       return updatePieceState(context.state, context.source.id, patch);
     },
   };
@@ -115,6 +131,10 @@ export function updateTargetPieceState(
         throw new ValidationError(`No piece exists at target square: ${targetKey(target)}`);
       }
 
+      if (isEffectImmunePiece(targetPiece)) {
+        return context.state;
+      }
+
       return updatePieceState(context.state, targetPiece.id, patch);
     },
   };
@@ -128,6 +148,10 @@ export function addSourceStatus(
     id: options.id ?? 'add-source-status',
     description: options.description ?? 'Add a status to the source piece.',
     apply(context) {
+      if (isEffectImmunePiece(context.source)) {
+        return context.state;
+      }
+
       return updatePiece(context.state, context.source.id, (piece) =>
         withAddedPieceStatus(piece, status),
       );
@@ -144,6 +168,10 @@ export function addTargetStatus(
     description: options.description ?? 'Add a status to the target piece.',
     apply(context) {
       const targetPiece = requireTargetPiece(context);
+      if (isEffectImmunePiece(targetPiece)) {
+        return context.state;
+      }
+
       return updatePiece(context.state, targetPiece.id, (piece) =>
         withAddedPieceStatus(piece, status),
       );
@@ -159,6 +187,10 @@ export function removeSourceStatus(
     id: options.id ?? 'remove-source-status',
     description: options.description ?? 'Remove a status from the source piece.',
     apply(context) {
+      if (isEffectImmunePiece(context.source)) {
+        return context.state;
+      }
+
       return updatePiece(context.state, context.source.id, (piece) =>
         withRemovedPieceStatus(piece, statusId),
       );
@@ -175,6 +207,10 @@ export function removeTargetStatus(
     description: options.description ?? 'Remove a status from the target piece.',
     apply(context) {
       const targetPiece = requireTargetPiece(context);
+      if (isEffectImmunePiece(targetPiece)) {
+        return context.state;
+      }
+
       return updatePiece(context.state, targetPiece.id, (piece) =>
         withRemovedPieceStatus(piece, statusId),
       );
@@ -255,4 +291,8 @@ function validateTargetInsideBoard(state: GameState, target: Coordinate): void {
 
 function targetKey(target: Coordinate): string {
   return `${String(target.file)},${String(target.rank)}`;
+}
+
+function isEffectImmunePiece(piece: PieceInstance): boolean {
+  return piece.definitionId === 'king';
 }

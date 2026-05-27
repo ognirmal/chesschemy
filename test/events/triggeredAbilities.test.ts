@@ -6,7 +6,12 @@ import type {
   PieceInstance,
   PlayerId,
 } from '../../src/index.js';
-import { definePiece, makeMove, updateTargetPieceState } from '../../src/index.js';
+import {
+  definePiece,
+  makeMove,
+  teleportSourceToTarget,
+  updateTargetPieceState,
+} from '../../src/index.js';
 
 describe('triggered abilities', () => {
   it('resolves triggered abilities from captured pieces', () => {
@@ -84,7 +89,175 @@ describe('triggered abilities', () => {
 
     expect(seenEvents).toEqual(['action:accepted', 'piece:moved', 'turn:ended']);
   });
+
+  it('rejects triggered abilities that leave their own king in check', () => {
+    const sidestep: AbilityDefinition = {
+      id: 'sidestep',
+      kind: 'triggered',
+      displayName: 'Sidestep',
+      target: { range: 2, occupancy: 'empty' },
+      shouldTrigger: ({ event }) => event?.kind === 'action:accepted',
+      resolveTarget: () => ({ file: 6, rank: 2 }),
+      effects: [teleportSourceToTarget()],
+    };
+    const wizard = definePiece({
+      id: 'wizard',
+      displayName: 'Wizard',
+      abilities: [sidestep],
+    });
+    const state = selfCheckTriggerState([wizard]);
+
+    expect(() => {
+      makeMove(state, {
+        pieceId: 'white-knight',
+        to: { file: 2, rank: 3 },
+      });
+    }).toThrow("Triggered ability sidestep would leave white's king in check.");
+  });
+
+  it('validates triggered ability targets before applying effects', () => {
+    const cases: readonly {
+      readonly ability: AbilityDefinition;
+      readonly reason: string;
+    }[] = [
+      {
+        ability: {
+          id: 'missing-target',
+          kind: 'triggered',
+          displayName: 'Missing Target',
+          target: { required: true },
+          shouldTrigger: ({ event }) => event?.kind === 'action:accepted',
+          effects: [],
+        },
+        reason: 'Triggered ability missing-target requires a target.',
+      },
+      {
+        ability: {
+          id: 'outside-board',
+          kind: 'triggered',
+          displayName: 'Outside Board',
+          shouldTrigger: ({ event }) => event?.kind === 'action:accepted',
+          resolveTarget: () => ({ file: 9, rank: 4 }),
+          effects: [],
+        },
+        reason: 'Target is outside the board: 9,4',
+      },
+      {
+        ability: {
+          id: 'source-square',
+          kind: 'triggered',
+          displayName: 'Source Square',
+          target: {},
+          shouldTrigger: ({ event }) => event?.kind === 'action:accepted',
+          resolveTarget: ({ source }) => source.position,
+          effects: [],
+        },
+        reason: 'Triggered ability source-square cannot target its source square.',
+      },
+      {
+        ability: {
+          id: 'range-fail',
+          kind: 'triggered',
+          displayName: 'Range Fail',
+          target: { range: 1 },
+          shouldTrigger: ({ event }) => event?.kind === 'action:accepted',
+          resolveTarget: () => ({ file: 8, rank: 4 }),
+          effects: [],
+        },
+        reason: 'Target is out of range for triggered ability range-fail.',
+      },
+      {
+        ability: {
+          id: 'occupancy-fail',
+          kind: 'triggered',
+          displayName: 'Occupancy Fail',
+          target: { occupancy: 'enemy' },
+          shouldTrigger: ({ event }) => event?.kind === 'action:accepted',
+          resolveTarget: () => ({ file: 3, rank: 4 }),
+          effects: [],
+        },
+        reason: 'Target does not satisfy enemy occupancy for triggered ability occupancy-fail.',
+      },
+      {
+        ability: {
+          id: 'validator-fail',
+          kind: 'triggered',
+          displayName: 'Validator Fail',
+          target: { validate: () => false },
+          shouldTrigger: ({ event }) => event?.kind === 'action:accepted',
+          resolveTarget: () => ({ file: 3, rank: 4 }),
+          effects: [],
+        },
+        reason: 'Target is invalid for triggered ability validator-fail.',
+      },
+    ];
+
+    for (const { ability, reason } of cases) {
+      const watcher = definePiece({
+        id: 'watcher',
+        displayName: 'Watcher',
+        abilities: [ability],
+      });
+      const state = gameState(
+        [
+          piece('white-watcher', 'watcher', 'white', { file: 4, rank: 4 }),
+          piece('white-knight', 'knight', 'white', { file: 1, rank: 1 }),
+          piece('white-king', 'king', 'white', { file: 5, rank: 1 }),
+          piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+        ],
+        [watcher],
+      );
+
+      expect(() => {
+        makeMove(state, {
+          pieceId: 'white-knight',
+          to: { file: 2, rank: 3 },
+        });
+      }).toThrow(reason);
+    }
+  });
+
+  it('supports canActivate triggers and explicit self-check opt out', () => {
+    const sidestep: AbilityDefinition = {
+      id: 'sidestep',
+      kind: 'triggered',
+      displayName: 'Sidestep',
+      allowsSelfCheck: true,
+      target: { range: 2, occupancy: 'empty' },
+      canActivate: ({ event }) => event?.kind === 'action:accepted',
+      resolveTarget: () => ({ file: 6, rank: 2 }),
+      effects: [teleportSourceToTarget()],
+    };
+    const wizard = definePiece({
+      id: 'wizard',
+      displayName: 'Wizard',
+      abilities: [sidestep],
+    });
+    const state = selfCheckTriggerState([wizard]);
+
+    const nextState = makeMove(state, {
+      pieceId: 'white-knight',
+      to: { file: 2, rank: 3 },
+    });
+
+    expect(nextState.pieces.find((candidate) => candidate.id === 'white-wizard')?.position).toEqual(
+      { file: 6, rank: 2 },
+    );
+  });
 });
+
+function selfCheckTriggerState(pieceDefinitions: GameState['pieceDefinitions']): GameState {
+  return gameState(
+    [
+      piece('white-king', 'king', 'white', { file: 5, rank: 1 }),
+      piece('white-wizard', 'wizard', 'white', { file: 5, rank: 2 }),
+      piece('white-knight', 'knight', 'white', { file: 1, rank: 1 }),
+      piece('black-rook', 'rook', 'black', { file: 5, rank: 8 }),
+      piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+    ],
+    pieceDefinitions,
+  );
+}
 
 function gameState(
   pieces: readonly PieceInstance[],

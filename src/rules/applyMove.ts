@@ -28,6 +28,10 @@ export function applyMove(state: GameState, move: PseudoLegalMove): GameState {
     throw new ValidationError(`Cannot capture a friendly piece: ${capturedPiece.id}`);
   }
 
+  if (capturedPiece?.definitionId === 'king') {
+    throw new ValidationError(`Cannot capture a king: ${capturedPiece.id}`);
+  }
+
   const nextPieces = state.pieces
     .filter((piece) => piece.id !== capturedPiece?.id)
     .map((piece) => movePieceForAction(state, movingPiece, piece, move));

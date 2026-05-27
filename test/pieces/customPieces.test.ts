@@ -13,6 +13,7 @@ import {
   generateLegalMoves,
   isKingInCheck,
   leaper,
+  PieceRegistry,
   slider,
   stationary,
   stepper,
@@ -150,6 +151,131 @@ describe('custom pieces', () => {
     );
 
     expect(isKingInCheck(state, 'white')).toBe(true);
+  });
+
+  it('does not generate custom piece captures against kings', () => {
+    const laser = definePiece({
+      id: 'laser',
+      displayName: 'Laser',
+      movements: [slider({ directions: 'orthogonal' })],
+    });
+    const state = gameState(
+      [
+        piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+        piece('white-laser', 'laser', 'white', { file: 5, rank: 1 }),
+        piece('black-king', 'king', 'black', { file: 5, rank: 8 }),
+      ],
+      [laser],
+    );
+
+    const moves = generateLegalMoves(state).filter((move) => move.pieceId === 'white-laser');
+
+    expect(moves.some((move) => move.capturePieceId === 'black-king')).toBe(false);
+    expect(moveTargets(moves)).not.toContain('5,8');
+    expect(isKingInCheck(state, 'black')).toBe(true);
+  });
+
+  it('supports base piece movement helpers and default guards', () => {
+    class PatternTester extends BasePiece {
+      public readonly id = 'pattern-tester';
+      public readonly displayName = 'Pattern Tester';
+
+      public override generateMoves(context: PieceBehaviorContext): readonly MoveCandidate[] {
+        return [
+          ...this.step(context, 'orthogonal'),
+          ...this.leap(context, [
+            [2, 0],
+            [-2, 0],
+          ]),
+          ...this.slide(context, [[1, 1]]),
+        ];
+      }
+    }
+
+    const tester = new PatternTester();
+    const state = createGame({
+      initialState: gameState([
+        piece('white-tester', 'pattern-tester', 'white', { file: 4, rank: 4 }),
+        piece('white-blocker', 'pawn', 'white', { file: 4, rank: 6 }),
+        piece('black-target', 'pawn', 'black', { file: 6, rank: 4 }),
+        piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+        piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+      ]),
+      pieceDefinitions: [tester],
+    });
+    const testerPiece = state.pieces.find((candidate) => candidate.id === 'white-tester');
+
+    if (testerPiece === undefined) {
+      throw new Error('Expected tester piece.');
+    }
+
+    expect(tester.canMovePiece({ state, piece: testerPiece })).toBe(true);
+    expect(tester.canCapturePiece({ state, piece: testerPiece })).toBe(true);
+    expect(
+      moveTargets(generateLegalMoves(state).filter((move) => move.pieceId === 'white-tester')),
+    ).toEqual(['2,4', '3,4', '4,3', '4,5', '5,4', '5,5', '6,4', '6,6', '7,7']);
+  });
+
+  it('supports definePiece behavior callbacks and base piece defaults', () => {
+    const blink: GameState['pieceDefinitions'] = [];
+    const scout = definePiece({
+      id: 'scout',
+      displayName: 'Scout',
+      canMove: false,
+      canCapture: false,
+      getAbilities: () => blink.flatMap((definition) => definition.abilities ?? []),
+      generateMoves: () => [{ to: { file: 5, rank: 4 } }],
+      canMovePiece: () => false,
+      canCapturePiece: () => false,
+    });
+    class Wazir extends BasePiece {
+      public readonly id = 'wazir-class';
+      public readonly displayName = 'Wazir Class';
+      public override readonly movements = [stepper({ directions: 'orthogonal' })];
+    }
+    const wazir = new Wazir();
+    const state = gameState([
+      piece('white-scout', 'scout', 'white', { file: 4, rank: 4 }),
+      piece('white-wazir', 'wazir-class', 'white', { file: 6, rank: 4 }),
+      piece('white-king', 'king', 'white', { file: 1, rank: 1 }),
+      piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+    ]);
+    const scoutPiece = state.pieces.find((candidate) => candidate.id === 'white-scout');
+    const wazirPiece = state.pieces.find((candidate) => candidate.id === 'white-wazir');
+
+    if (scoutPiece === undefined || wazirPiece === undefined) {
+      throw new Error('Expected test pieces.');
+    }
+
+    expect(scout.canMove).toBe(false);
+    expect(scout.canCapture).toBe(false);
+    expect(scout.generateMoves?.({ state, piece: scoutPiece })).toEqual([
+      { to: { file: 5, rank: 4 } },
+    ]);
+    expect(scout.getAbilities?.({ state, piece: scoutPiece })).toEqual([]);
+    expect(scout.canMovePiece?.({ state, piece: scoutPiece })).toBe(false);
+    expect(scout.canCapturePiece?.({ state, piece: scoutPiece })).toBe(false);
+    expect(wazir.generateMoves({ state, piece: wazirPiece }).map((move) => move.to)).toEqual([
+      { file: 7, rank: 4 },
+      { file: 5, rank: 4 },
+      { file: 6, rank: 5 },
+      { file: 6, rank: 3 },
+    ]);
+    expect(wazir.getAbilities({ state, piece: wazirPiece })).toEqual([]);
+  });
+
+  it('registers and lists piece definitions', () => {
+    const registry = new PieceRegistry();
+    const wazir = definePiece({ id: 'wazir', displayName: 'Wazir' });
+
+    registry.register(wazir);
+
+    expect(registry.get('wazir')).toBe(wazir);
+    expect(registry.get('missing')).toBeUndefined();
+    expect(registry.list()).toEqual([wazir]);
+    expect(() => {
+      registry.register(wazir);
+    }).toThrow('Piece definition already registered: wazir');
   });
 });
 

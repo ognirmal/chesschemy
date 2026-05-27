@@ -11,6 +11,10 @@ interface PieceStateWithStatuses {
 }
 
 export function getPieceStatuses(piece: PieceInstance): readonly PieceStatus[] {
+  if (isStatusImmunePiece(piece)) {
+    return [];
+  }
+
   const statuses = (piece.state as PieceStateWithStatuses | undefined)?.statuses;
   if (!Array.isArray(statuses)) {
     return [];
@@ -28,6 +32,10 @@ export function hasPieceStatus(piece: PieceInstance, statusId: string): boolean 
 }
 
 export function withAddedPieceStatus(piece: PieceInstance, status: PieceStatus): PieceInstance {
+  if (isStatusImmunePiece(piece)) {
+    return piece;
+  }
+
   const statuses = getPieceStatuses(piece).filter((candidate) => candidate.id !== status.id);
   return withPieceStatuses(piece, [...statuses, status]);
 }
@@ -63,6 +71,10 @@ export function getAbilityCooldownStatusId(abilityId: string): string {
 
 export function hasAbilityCooldown(piece: PieceInstance, abilityId: string): boolean {
   return hasPieceStatus(piece, getAbilityCooldownStatusId(abilityId));
+}
+
+function isStatusImmunePiece(piece: PieceInstance): boolean {
+  return piece.definitionId === 'king';
 }
 
 function withPieceStatuses(piece: PieceInstance, statuses: readonly PieceStatus[]): PieceInstance {

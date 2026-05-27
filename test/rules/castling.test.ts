@@ -5,7 +5,8 @@ import type {
   PlayerId,
   PseudoLegalMove,
 } from '../../src/index.js';
-import { applyMove, generateLegalMoves } from '../../src/index.js';
+import { generateLegalMoves } from '../../src/index.js';
+import { applyMove } from '../../src/rules/applyMove.js';
 
 describe('castling', () => {
   it('generates king-side and queen-side castling when rights, path, and attacks allow it', () => {

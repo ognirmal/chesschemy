@@ -4,6 +4,7 @@ import type { AbilityAction, Coordinate, GameState, PieceInstance } from '../cor
 import { findPieceAt } from '../movement/boardQueries.js';
 import type { AbilityDefinition, AbilityTargetRules } from '../abilities/abilityDefinition.js';
 import type { PieceDefinition } from '../pieces/pieceDefinition.js';
+import { isKingInCheck } from '../rules/attackDetection.js';
 import { tickPieceStatuses } from '../statuses/statusDefinition.js';
 import type { GameEvent } from './gameEvent.js';
 
@@ -94,10 +95,18 @@ function applyTriggeredAbility(
     ...(target === undefined ? {} : { target }),
   };
 
-  return ability.effects.reduce(
+  const effectedState = ability.effects.reduce(
     (nextState, effect) => effect.apply({ ...baseContext, state: nextState }),
     state,
   );
+
+  if (ability.allowsSelfCheck !== true && isKingInCheck(effectedState, source.owner)) {
+    throw new ValidationError(
+      `Triggered ability ${ability.id} would leave ${source.owner}'s king in check.`,
+    );
+  }
+
+  return effectedState;
 }
 
 function validateTriggeredTarget(
