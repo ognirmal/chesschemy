@@ -1,7 +1,7 @@
 import type { AbilityDefinition } from 'chesschemy/abilities';
 import type { Coordinate } from 'chesschemy/core';
 import { createVariantGame } from 'chesschemy/core';
-import { definePiece } from 'chesschemy/pieces';
+import { BasePiece } from 'chesschemy/pieces';
 import { generateLegalMoves } from 'chesschemy/rules';
 
 const shieldAdjacentAlly: AbilityDefinition = {
@@ -22,11 +22,13 @@ const shieldAdjacentAlly: AbilityDefinition = {
   },
 };
 
-const guardian = definePiece({
-  id: 'guardian',
-  displayName: 'Guardian',
-  abilities: [shieldAdjacentAlly],
-});
+class Guardian extends BasePiece {
+  public readonly id = 'guardian';
+  public readonly displayName = 'Guardian';
+  public override readonly abilities: readonly AbilityDefinition[] = [shieldAdjacentAlly];
+}
+
+const guardian = new Guardian();
 
 const game = createVariantGame({
   board: { files: 8, ranks: 8 },

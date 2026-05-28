@@ -217,6 +217,7 @@ Current automatic terminal statuses:
 
 - checkmate: `{ kind: 'won', winner, reason: 'checkmate' }`
 - stalemate: `{ kind: 'draw', reason: 'stalemate' }`
+- insufficient material: `{ kind: 'draw', reason: 'insufficient-material' }`
 
 ## 9. Minimal Game Loop
 
@@ -251,9 +252,9 @@ This is enough to connect Chesschemy to a board UI:
 4. If valid, call `makeMove` and replace your local state.
 5. Inspect `game.status` after every move.
 
-## 10. Serialize State
+## 10. Save and Restore
 
-Use the JSON-friendly serializer for persistence boundaries.
+Use `serializeGameState` for engine snapshots.
 
 ```ts
 import { deserializeGameState, serializeGameState } from 'chesschemy';
@@ -262,4 +263,32 @@ const saved = serializeGameState(game);
 const restored = deserializeGameState(saved);
 ```
 
-FEN import/export is planned separately.
+For standard chess interoperability, use FEN.
+
+```ts
+import { deserializeFen, serializeFen } from 'chesschemy';
+
+const fen = serializeFen(game);
+const restoredFromFen = deserializeFen(fen);
+```
+
+FEN is limited to active standard chess positions. Use state serialization for
+custom variants.
+
+## 11. Add Rendering or Networking
+
+Chesschemy does not own the UI. A typical application loop is:
+
+1. Keep the authoritative `GameState` in your app or server.
+2. Render pieces from `game.pieces`.
+3. Use query helpers to highlight legal destinations.
+4. Submit a `MoveInput` or `AbilityInput`.
+5. Call `makeMove` or `useAbility`.
+6. Store and render the returned state.
+
+Next reads:
+
+- [Public API Guide](public-api.md)
+- [Custom Pieces](custom-pieces.md)
+- [Abilities](abilities.md)
+- [Security Notes](security.md)

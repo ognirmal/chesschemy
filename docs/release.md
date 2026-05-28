@@ -43,6 +43,19 @@ Run a registry publish simulation:
 npm run publish:dry-run
 ```
 
+## Documentation Checklist
+
+Before a release that changes behavior or public API, review:
+
+- `README.md` quick start and guide links.
+- `docs/public-api.md` for new, renamed, or removed exports.
+- `docs/getting-started.md` for standard game flow changes.
+- `docs/custom-pieces.md` for custom piece behavior changes.
+- `docs/abilities.md` for active, passive, triggered, status, or effect behavior changes.
+- `docs/security.md` if trust boundaries, validation, or serialization changed.
+- `examples/*.ts` to confirm examples use public package exports.
+- `CHANGELOG.md` for user-facing release notes.
+
 ## Publish
 
 When the dry run is correct:

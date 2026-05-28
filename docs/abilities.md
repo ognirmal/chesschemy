@@ -1,49 +1,12 @@
-# Custom Pieces And Abilities
+# Abilities
 
-Chesschemy variants are built from piece definitions, movement patterns,
-abilities, effects, and JSON-friendly runtime state. The engine keeps rule
-resolution deterministic and leaves balance decisions to the variant author.
-The current engine validates two-player, king-based games: each side must have
-exactly one `king`, kings cannot be adjacent, and generated legal moves never
-capture kings.
+Abilities add programmable behavior to custom pieces. Active abilities are
+called by application code, passive abilities answer engine rule questions, and
+triggered abilities react to deterministic engine events.
 
-## Define A Moving Piece
-
-Use `definePiece` with movement helpers such as `stepper`, `slider`, or
-`leaper`. Custom pieces participate in the same board, turn, and legality flow
-as standard pieces.
-
-```ts
-import { createVariantGame } from 'chesschemy';
-import { stepper } from 'chesschemy/movement';
-import { definePiece } from 'chesschemy/pieces';
-
-const teleporter = definePiece({
-  id: 'teleporter',
-  displayName: 'Teleporter',
-  movements: [stepper({ directions: 'orthogonal' })],
-});
-
-const game = createVariantGame({
-  board: { files: 8, ranks: 8 },
-  pieces: [
-    {
-      id: 'white-teleporter',
-      definitionId: 'teleporter',
-      owner: 'white',
-      position: { file: 4, rank: 4 },
-    },
-    { id: 'white-king', definitionId: 'king', owner: 'white', position: { file: 1, rank: 1 } },
-    { id: 'black-king', definitionId: 'king', owner: 'black', position: { file: 8, rank: 8 } },
-  ],
-  pieceDefinitions: [teleporter],
-  ruleset: {
-    id: 'teleporter-demo',
-    version: '1.0.0',
-    displayName: 'Teleporter Demo',
-  },
-});
-```
+Abilities are part of trusted piece definitions. Serialized game state does not
+store ability callbacks or effect functions; reattach trusted definitions when
+restoring custom games.
 
 ## Add An Active Ability
 
@@ -51,14 +14,15 @@ Active abilities are invoked with `useAbility`. Target rules describe whether a
 target is required, how far it can be, and what occupancy it must satisfy.
 
 ```ts
+import type { AbilityDefinition } from 'chesschemy/abilities';
 import { useAbility } from 'chesschemy/abilities';
 import { teleportSourceToTarget } from 'chesschemy/effects';
-import { definePiece } from 'chesschemy/pieces';
+import { BasePiece } from 'chesschemy/pieces';
 
-const wizard = definePiece({
-  id: 'wizard',
-  displayName: 'Wizard',
-  abilities: [
+class Wizard extends BasePiece {
+  public readonly id = 'wizard';
+  public readonly displayName = 'Wizard';
+  public override readonly abilities: readonly AbilityDefinition[] = [
     {
       id: 'blink',
       kind: 'active',
@@ -66,8 +30,10 @@ const wizard = definePiece({
       target: { range: 3, occupancy: 'empty' },
       effects: [teleportSourceToTarget()],
     },
-  ],
-});
+  ];
+}
+
+const wizard = new Wizard();
 
 const nextGame = useAbility(game, {
   pieceId: 'white-wizard',
@@ -84,42 +50,28 @@ resolve, the acting player's king must not be in check, even when
 `consumesTurn: false`. Set `allowsSelfCheck: true` only for variants that
 intentionally allow this non-chess behavior.
 
-## Create A Stationary Piece
+## Add Statuses And Cooldowns
 
-Stationary pieces are normal pieces with `canMove: false`. They can still own
-abilities, receive statuses, and serialize as runtime state.
+Statuses are JSON-friendly entries stored under `PieceInstance.state.statuses`.
+Built-in status helpers can add, remove, inspect, and tick statuses.
 
 ```ts
-import { addTargetStatus } from 'chesschemy/effects';
-import { definePiece } from 'chesschemy/pieces';
+import { addTargetStatus, setSourceAbilityCooldown } from 'chesschemy/effects';
+import { hasAbilityCooldown } from 'chesschemy/statuses';
 
-const freezeTower = definePiece({
-  id: 'freeze-tower',
-  displayName: 'Freeze Tower',
-  canMove: false,
-  abilities: [
-    {
-      id: 'freeze',
-      kind: 'active',
-      displayName: 'Freeze',
-      target: { range: 4, occupancy: 'enemy' },
-      effects: [addTargetStatus({ id: 'frozen', duration: 1 })],
-    },
-  ],
-});
+const freeze = {
+  id: 'freeze',
+  kind: 'active',
+  displayName: 'Freeze',
+  target: { range: 3, occupancy: 'enemy' },
+  canActivate: ({ source }) => !hasAbilityCooldown(source, 'freeze'),
+  effects: [addTargetStatus({ id: 'frozen', duration: 1 }), setSourceAbilityCooldown('freeze', 2)],
+};
 ```
 
 Pieces with a `frozen` status generate no legal moves. Finite statuses tick down
-when their owner ends a turn.
-
-`PieceInstance.state` is JSON runtime state for a piece. Statuses are stored in
-`state.statuses`; `PieceStatus.data` is optional JSON metadata for an individual
-status.
-
-Kings are immune to statuses and built-in effects. If an ability targets a king
-with helpers such as `addTargetStatus`, `removeTargetPiece`, or
-`updateTargetPieceState`, the king is left unchanged. Persisted game states that
-already contain statuses on kings fail validation.
+when their owner ends a turn and are removed when their duration reaches zero.
+Kings are immune to built-in statuses and effects.
 
 ## React To Events
 
@@ -129,8 +81,8 @@ removes the source piece after it captures another piece.
 ```ts
 import type { AbilityDefinition } from 'chesschemy/abilities';
 import { removeSource } from 'chesschemy/effects';
-import { stepper } from 'chesschemy/movement';
-import { definePiece } from 'chesschemy/pieces';
+import type { MoveCandidate, PieceBehaviorContext } from 'chesschemy/movement';
+import { BasePiece } from 'chesschemy/pieces';
 
 const vanishAfterCapture: AbilityDefinition = {
   id: 'vanish-after-capture',
@@ -141,12 +93,17 @@ const vanishAfterCapture: AbilityDefinition = {
   effects: [removeSource()],
 };
 
-const assassin = definePiece({
-  id: 'assassin',
-  displayName: 'Assassin',
-  movements: [stepper({ directions: 'diagonal' })],
-  abilities: [vanishAfterCapture],
-});
+class Assassin extends BasePiece {
+  public readonly id = 'assassin';
+  public readonly displayName = 'Assassin';
+  public override readonly abilities = [vanishAfterCapture];
+
+  public override generateMoves(context: PieceBehaviorContext): readonly MoveCandidate[] {
+    return this.step(context, 'diagonal');
+  }
+}
+
+const assassin = new Assassin();
 ```
 
 Current engine events include accepted actions, moved pieces, captured pieces,
@@ -200,7 +157,7 @@ import { deserializeGameState, serializeGameState } from 'chesschemy/serializati
 
 const saved = serializeGameState(game);
 const restored = deserializeGameState(saved, {
-  pieceDefinitions: [teleporter, freezeTower, assassin],
+  pieceDefinitions: [wizard, assassin],
 });
 ```
 

@@ -1,15 +1,15 @@
+import type { AbilityDefinition } from 'chesschemy/abilities';
 import { useAbility, validateAbility } from 'chesschemy/abilities';
 import { createVariantGame } from 'chesschemy/core';
 import { teleportSourceToTarget } from 'chesschemy/effects';
-import { stepper } from 'chesschemy/movement';
-import { definePiece } from 'chesschemy/pieces';
+import type { MoveCandidate, PieceBehaviorContext } from 'chesschemy/movement';
+import { BasePiece } from 'chesschemy/pieces';
 import { getPieceAt } from 'chesschemy/queries';
 
-const teleporter = definePiece({
-  id: 'teleporter',
-  displayName: 'Teleporter',
-  movements: [stepper({ directions: 'orthogonal' })],
-  abilities: [
+class Teleporter extends BasePiece {
+  public readonly id = 'teleporter';
+  public readonly displayName = 'Teleporter';
+  public override readonly abilities: readonly AbilityDefinition[] = [
     {
       id: 'blink',
       kind: 'active',
@@ -17,8 +17,14 @@ const teleporter = definePiece({
       target: { range: 3, occupancy: 'empty' },
       effects: [teleportSourceToTarget()],
     },
-  ],
-});
+  ];
+
+  public override generateMoves(context: PieceBehaviorContext): readonly MoveCandidate[] {
+    return this.step(context, 'orthogonal');
+  }
+}
+
+const teleporter = new Teleporter();
 
 const game = createVariantGame({
   board: { files: 8, ranks: 8 },

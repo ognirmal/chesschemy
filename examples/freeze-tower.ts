@@ -1,15 +1,16 @@
+import type { AbilityDefinition } from 'chesschemy/abilities';
 import { useAbility } from 'chesschemy/abilities';
 import { createVariantGame } from 'chesschemy/core';
 import { addTargetStatus } from 'chesschemy/effects';
-import { definePiece } from 'chesschemy/pieces';
+import type { PieceBehaviorContext } from 'chesschemy/movement';
+import { BasePiece } from 'chesschemy/pieces';
 import { generateLegalMoves } from 'chesschemy/rules';
 import { hasPieceStatus } from 'chesschemy/statuses';
 
-const freezeTower = definePiece({
-  id: 'freeze-tower',
-  displayName: 'Freeze Tower',
-  canMove: false,
-  abilities: [
+class FreezeTower extends BasePiece {
+  public readonly id = 'freeze-tower';
+  public readonly displayName = 'Freeze Tower';
+  public override readonly abilities: readonly AbilityDefinition[] = [
     {
       id: 'freeze',
       kind: 'active',
@@ -17,8 +18,15 @@ const freezeTower = definePiece({
       target: { range: 4, occupancy: 'enemy' },
       effects: [addTargetStatus({ id: 'frozen', duration: 1 })],
     },
-  ],
-});
+  ];
+
+  public override canMovePiece(_context: PieceBehaviorContext): boolean {
+    void _context;
+    return false;
+  }
+}
+
+const freezeTower = new FreezeTower();
 
 const game = createVariantGame({
   board: { files: 8, ranks: 8 },

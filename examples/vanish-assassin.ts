@@ -1,8 +1,8 @@
 import type { AbilityDefinition } from 'chesschemy/abilities';
 import { createVariantGame } from 'chesschemy/core';
 import { removeSource } from 'chesschemy/effects';
-import { stepper } from 'chesschemy/movement';
-import { definePiece } from 'chesschemy/pieces';
+import type { MoveCandidate, PieceBehaviorContext } from 'chesschemy/movement';
+import { BasePiece } from 'chesschemy/pieces';
 import { makeMove } from 'chesschemy/rules';
 
 const vanishAfterCapture: AbilityDefinition = {
@@ -14,12 +14,17 @@ const vanishAfterCapture: AbilityDefinition = {
   effects: [removeSource()],
 };
 
-const assassin = definePiece({
-  id: 'assassin',
-  displayName: 'Assassin',
-  movements: [stepper({ directions: 'diagonal' })],
-  abilities: [vanishAfterCapture],
-});
+class Assassin extends BasePiece {
+  public readonly id = 'assassin';
+  public readonly displayName = 'Assassin';
+  public override readonly abilities: readonly AbilityDefinition[] = [vanishAfterCapture];
+
+  public override generateMoves(context: PieceBehaviorContext): readonly MoveCandidate[] {
+    return this.step(context, 'diagonal');
+  }
+}
+
+const assassin = new Assassin();
 
 const game = createVariantGame({
   board: { files: 8, ranks: 8 },

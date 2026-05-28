@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="520" viewBox="0 0 1040 520" role="img" aria-labelledby="title desc">
+  <title id="title">Chesschemy engine flow</title>
+  <desc id="desc">A diagram showing application input flowing through Chesschemy validation, rules, abilities, events, and serialization.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#44546a"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .band { fill: #e8eef5; }
+      .box { fill: #ffffff; stroke: #64748b; stroke-width: 1.5; rx: 8; }
+      .accent { fill: #eef8f1; stroke: #3f7f55; }
+      .warn { fill: #fff7e6; stroke: #9a6b1f; }
+      .title { fill: #172033; font: 700 22px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .label { fill: #172033; font: 700 15px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .small { fill: #334155; font: 13px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .tiny { fill: #475569; font: 12px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .line { stroke: #44546a; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #64748b; stroke-width: 1.5; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" width="1040" height="520"/>
+  <rect class="band" x="30" y="74" width="980" height="336" rx="14"/>
+  <text class="title" x="40" y="42">Chesschemy Engine Flow</text>
+  <text class="small" x="40" y="64">Your app owns UI and storage. Chesschemy owns deterministic rules and state transitions.</text>
+
+  <rect class="box" x="54" y="112" width="150" height="88"/>
+  <text class="label" x="76" y="142">Create State</text>
+  <text class="tiny" x="76" y="166">createGame</text>
+  <text class="tiny" x="76" y="184">createVariantGame</text>
+
+  <rect class="box" x="254" y="112" width="150" height="88"/>
+  <text class="label" x="276" y="142">Validate</text>
+  <text class="tiny" x="276" y="166">validateGameState</text>
+  <text class="tiny" x="276" y="184">coordinates, kings</text>
+
+  <rect class="box" x="454" y="112" width="150" height="88"/>
+  <text class="label" x="476" y="142">Choose Action</text>
+  <text class="tiny" x="476" y="166">move input</text>
+  <text class="tiny" x="476" y="184">ability input</text>
+
+  <rect class="box" x="654" y="112" width="150" height="88"/>
+  <text class="label" x="676" y="142">Check Rules</text>
+  <text class="tiny" x="676" y="166">legal moves</text>
+  <text class="tiny" x="676" y="184">target rules</text>
+
+  <rect class="accent" x="854" y="112" width="150" height="88" rx="8"/>
+  <text class="label" x="876" y="142">Next State</text>
+  <text class="tiny" x="876" y="166">makeMove</text>
+  <text class="tiny" x="876" y="184">useAbility</text>
+
+  <path class="line" d="M 204 156 L 246 156"/>
+  <path class="line" d="M 404 156 L 446 156"/>
+  <path class="line" d="M 604 156 L 646 156"/>
+  <path class="line" d="M 804 156 L 846 156"/>
+
+  <rect class="box" x="172" y="262" width="172" height="86"/>
+  <text class="label" x="194" y="292">Pieces</text>
+  <text class="tiny" x="194" y="316">definitions</text>
+  <text class="tiny" x="194" y="334">movement patterns</text>
+
+  <rect class="box" x="434" y="262" width="172" height="86"/>
+  <text class="label" x="456" y="292">Abilities</text>
+  <text class="tiny" x="456" y="316">active, passive</text>
+  <text class="tiny" x="456" y="334">triggered effects</text>
+
+  <rect class="box" x="696" y="262" width="172" height="86"/>
+  <text class="label" x="718" y="292">Events</text>
+  <text class="tiny" x="718" y="316">accepted actions</text>
+  <text class="tiny" x="718" y="334">captures, turns</text>
+
+  <path class="dash" d="M 700 204 C 610 248 500 248 344 292"/>
+  <path class="dash" d="M 728 204 C 690 246 622 254 580 292"/>
+  <path class="dash" d="M 928 204 C 900 244 850 258 804 292"/>
+
+  <rect class="warn" x="290" y="424" width="210" height="58" rx="8"/>
+  <text class="label" x="314" y="448">Persistence</text>
+  <text class="tiny" x="314" y="468">serializeGameState or FEN</text>
+
+  <rect class="warn" x="540" y="424" width="210" height="58" rx="8"/>
+  <text class="label" x="564" y="448">Application</text>
+  <text class="tiny" x="564" y="468">render, store, sync, repeat</text>
+
+  <path class="line" d="M 878 200 C 820 396 600 390 500 438"/>
+  <path class="line" d="M 750 452 L 822 452 C 942 452 950 226 930 202"/>
+</svg>

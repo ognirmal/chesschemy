@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.6.1 - 2026-05-28
+
+### Docs
+
+- Refreshed the README opening section with a stronger package introduction,
+  larger npm/GitHub badges, quick navigation links, and a visible collaboration
+  message for stars, issues, examples, docs, and focused pull requests.
+- Split the combined custom pieces and abilities guide into focused
+  `docs/custom-pieces.md` and `docs/abilities.md` guides.
+- Reworked the getting-started guide as `docs/getting-started.md`, including
+  updated standard-game flow, save/restore guidance, and integration notes for
+  rendering or networking.
+- Added `docs/public-api.md`, `docs/collaboration.md`, and `docs/security.md`
+  to clarify supported exports, contribution expectations, and trust boundaries.
+- Expanded the architecture guide with an engine-flow section and diagram, module
+  boundaries, determinism guidance, and public API compatibility notes.
+- Updated the release guide with a documentation checklist for public API,
+  behavior, examples, security, and changelog review.
+- Updated runnable examples to use class-based `BasePiece` definitions and
+  documented public package subpath imports.
+
 ## 0.6.0 - 2026-05-27
 
 ### Added

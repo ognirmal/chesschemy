@@ -1,22 +1,39 @@
+<div align="center">
+
 # Chesschemy Engine
 
-[![npm version](https://img.shields.io/npm/v/chesschemy.svg?style=flat-square)](https://www.npmjs.com/package/chesschemy)
-[![npm downloads](https://img.shields.io/npm/dm/chesschemy.svg?style=flat-square)](https://www.npmjs.com/package/chesschemy)
-[![total downloads](https://img.shields.io/npm/dt/chesschemy.svg?style=flat-square)](https://www.npmjs.com/package/chesschemy)
-[![types](https://img.shields.io/npm/types/chesschemy.svg?style=flat-square)](https://www.npmjs.com/package/chesschemy)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/chesschemy?style=flat-square)](https://bundlephobia.com/package/chesschemy)
-[![CI](https://img.shields.io/github/actions/workflow/status/ognirmal/chesschemy/ci.yml?branch=main&label=CI&style=flat-square)](https://github.com/ognirmal/chesschemy/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-ready-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
-[![npm provenance](https://img.shields.io/badge/npm-provenance-2f855a.svg?style=flat-square)](https://github.com/ognirmal/chesschemy/actions/workflows/publish.yml)
+**A TypeScript-first rules engine for standard chess and programmable chess variants.**
 
-TypeScript-first chess and chess-variant engine package.
+[![npm version](https://img.shields.io/npm/v/chesschemy.svg?style=for-the-badge&color=cb3837)](https://www.npmjs.com/package/chesschemy)
+[![npm downloads](https://img.shields.io/npm/dm/chesschemy.svg?style=for-the-badge&color=0ea5e9)](https://www.npmjs.com/package/chesschemy)
+[![GitHub stars](https://img.shields.io/github/stars/ognirmal/chesschemy?style=for-the-badge&logo=github&color=facc15)](https://github.com/ognirmal/chesschemy/stargazers)
+[![types](https://img.shields.io/npm/types/chesschemy.svg?style=for-the-badge&color=3178c6)](https://www.npmjs.com/package/chesschemy)
+[![CI](https://img.shields.io/github/actions/workflow/status/ognirmal/chesschemy/ci.yml?branch=main&label=CI&style=for-the-badge)](https://github.com/ognirmal/chesschemy/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-16a34a.svg?style=for-the-badge)](LICENSE)
+
+Build chess-like games with legal move generation, check filtering, custom
+pieces, active abilities, triggered effects, statuses, FEN support, and
+JSON-friendly serialization.
+
+**Star the repo if Chesschemy helps you. Open issues, ideas, examples, docs, and
+focused pull requests are welcome. This project is open for collaboration.**
+
+[npm package](https://www.npmjs.com/package/chesschemy) ·
+[guides](#guides) ·
+[quick start](#quick-start) ·
+[collaboration](docs/collaboration.md)
+
+</div>
 
 Chesschemy provides a deterministic engine core for standard chess today, with
 module boundaries for custom pieces, abilities, effects, and variant rules.
 The current rules engine is intentionally two-player and king-based: validated
 games must have exactly two players and exactly one `king` piece for each
 player.
+
+Use Chesschemy when you want rules, state transitions, validation, and
+serialization for a chess-like game. Bring your own renderer, network transport,
+database, matchmaking, auth, clocks, and UI.
 
 ## Features
 
@@ -93,14 +110,19 @@ const game = createGame();
 
 ```ts
 import { createVariantGame } from 'chesschemy';
-import { stepper } from 'chesschemy/movement';
-import { definePiece } from 'chesschemy/pieces';
+import type { MoveCandidate, PieceBehaviorContext } from 'chesschemy/movement';
+import { BasePiece } from 'chesschemy/pieces';
 
-const wizard = definePiece({
-  id: 'wizard',
-  displayName: 'Wizard',
-  movements: [stepper({ directions: 'diagonal' })],
-});
+class Wizard extends BasePiece {
+  public readonly id = 'wizard';
+  public readonly displayName = 'Wizard';
+
+  public override generateMoves(context: PieceBehaviorContext): readonly MoveCandidate[] {
+    return this.step(context, 'diagonal');
+  }
+}
+
+const wizard = new Wizard();
 
 const game = createVariantGame({
   board: { files: 8, ranks: 8 },
@@ -167,14 +189,15 @@ if (validation.valid) {
 ### Use Active Abilities
 
 ```ts
+import type { AbilityDefinition } from 'chesschemy/abilities';
 import { useAbility } from 'chesschemy/abilities';
 import { teleportSourceToTarget } from 'chesschemy/effects';
-import { definePiece } from 'chesschemy/pieces';
+import { BasePiece } from 'chesschemy/pieces';
 
-const wizard = definePiece({
-  id: 'wizard',
-  displayName: 'Wizard',
-  abilities: [
+class Wizard extends BasePiece {
+  public readonly id = 'wizard';
+  public readonly displayName = 'Wizard';
+  public override readonly abilities: readonly AbilityDefinition[] = [
     {
       id: 'blink',
       kind: 'active',
@@ -182,8 +205,10 @@ const wizard = definePiece({
       target: { range: 2, occupancy: 'empty' },
       effects: [teleportSourceToTarget()],
     },
-  ],
-});
+  ];
+}
+
+const wizard = new Wizard();
 
 const nextGame = useAbility(game, {
   pieceId: 'white-wizard',
@@ -200,8 +225,8 @@ non-chess self-check behavior.
 ### Statuses and Cooldowns
 
 ```ts
-import { addTargetStatus } from 'chesschemy/effects';
-import { hasAbilityCooldown, setSourceAbilityCooldown } from 'chesschemy/statuses';
+import { addTargetStatus, setSourceAbilityCooldown } from 'chesschemy/effects';
+import { hasAbilityCooldown } from 'chesschemy/statuses';
 
 const freeze = {
   id: 'freeze',
@@ -288,11 +313,16 @@ attacks, and rook relocation.
 
 ## Guides
 
-- [Getting Started: Build a Basic Game](docs/getting-started-basic-game.md)
-- [Custom Pieces And Abilities](docs/custom-pieces-and-abilities.md)
+- [Getting Started: Build a Basic Game](docs/getting-started.md)
+- [Public API Guide](docs/public-api.md)
+- [Custom Pieces](docs/custom-pieces.md)
+- [Abilities](docs/abilities.md)
 - [Passive Abilities](docs/passive-abilities.md)
 - [Architecture](docs/architecture.md)
+- [Security Notes](docs/security.md)
+- [Collaboration Guide](docs/collaboration.md)
 - [Release Guide](docs/release.md)
+- [Changelog](CHANGELOG.md)
 
 ## Development
 
@@ -304,6 +334,9 @@ npm test
 npm run build
 npm run format
 ```
+
+For contribution workflow, API compatibility expectations, and documentation
+standards, see [Collaboration Guide](docs/collaboration.md).
 
 ## Current Status
 
