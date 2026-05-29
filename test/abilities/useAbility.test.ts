@@ -1,17 +1,8 @@
-import type {
-  AbilityDefinition,
-  Coordinate,
-  GameState,
-  PieceInstance,
-  PlayerId,
-} from '../../src/index.js';
-import {
-  definePiece,
-  teleportSourceToTarget,
-  updateTargetPieceState,
-  useAbility,
-  validateAbility,
-} from '../../src/index.js';
+import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
+import type { AbilityDefinition } from '../../src/abilities/index.js';
+import { useAbility, validateAbility } from '../../src/abilities/index.js';
+import { teleportSourceToTarget, updateTargetPieceState } from '../../src/effects/index.js';
+import { definePiece } from '../../src/pieces/index.js';
 
 describe('useAbility', () => {
   it('returns structured validation failures before resolving effects', () => {

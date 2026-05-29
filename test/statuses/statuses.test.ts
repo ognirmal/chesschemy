@@ -1,23 +1,15 @@
-import type {
-  AbilityDefinition,
-  Coordinate,
-  GameState,
-  PieceInstance,
-  PlayerId,
-} from '../../src/index.js';
+import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
+import type { AbilityDefinition } from '../../src/abilities/index.js';
+import { addTargetStatus, setSourceAbilityCooldown } from '../../src/effects/index.js';
+import { definePiece } from '../../src/pieces/index.js';
+import { generateLegalMoves, makeMove } from '../../src/rules/index.js';
 import {
-  addTargetStatus,
-  definePiece,
-  generateLegalMoves,
   getPieceStatus,
   hasAbilityCooldown,
   hasPieceStatus,
-  makeMove,
-  setSourceAbilityCooldown,
-  useAbility,
-  validateAbility,
   withAddedPieceStatus,
-} from '../../src/index.js';
+} from '../../src/statuses/index.js';
+import { useAbility, validateAbility } from '../../src/abilities/index.js';
 
 describe('statuses', () => {
   it('blocks movement while frozen and expires after the frozen player ends a turn', () => {

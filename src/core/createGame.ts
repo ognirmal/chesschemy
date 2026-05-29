@@ -15,6 +15,10 @@ export interface CreateGameOptions {
   readonly pieceDefinitions?: readonly PieceDefinition[];
 }
 
+export function Game(options: CreateGameOptions = {}): GameState {
+  return createGame(options);
+}
+
 export function createGame(options: CreateGameOptions = {}): GameState {
   const baseState = options.initialState ?? standardPreset.createInitialState();
   const state =

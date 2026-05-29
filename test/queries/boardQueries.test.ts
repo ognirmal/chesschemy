@@ -1,6 +1,6 @@
 import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
+import { createGame } from '../../src/core/index.js';
 import {
-  createGame,
   getActivePlayerPieces,
   getLegalDestinationsForPiece,
   getLegalMovesForPiece,
@@ -11,15 +11,21 @@ import {
   isOccupied,
   isOccupiedByOpponent,
   isOccupiedByPlayer,
-} from '../../src/index.js';
+  legalMoves,
+  moves,
+  pieceAt,
+} from '../../src/queries/index.js';
 
 describe('board query API', () => {
   it('finds pieces by coordinate and id', () => {
     const state = createGame();
 
     expect(getPieceAt(state, { file: 5, rank: 1 })?.id).toBe('white-king-5');
+    expect(getPieceAt(state, 'e1')?.id).toBe('white-king-5');
+    expect(pieceAt(state, 'e1')?.id).toBe('white-king-5');
     expect(getPieceById(state, 'black-queen-4')?.position).toEqual({ file: 4, rank: 8 });
     expect(getPieceAt(state, { file: 9, rank: 9 })).toBeUndefined();
+    expect(getPieceAt(state, 'z99')).toBeUndefined();
     expect(getPieceById(state, 'missing')).toBeUndefined();
   });
 
@@ -35,10 +41,13 @@ describe('board query API', () => {
     const state = createGame();
 
     expect(isOccupied(state, { file: 1, rank: 1 })).toBe(true);
+    expect(isOccupied(state, 'a1')).toBe(true);
     expect(isOccupied(state, { file: 4, rank: 4 })).toBe(false);
     expect(isOccupiedByPlayer(state, { file: 1, rank: 1 }, 'white')).toBe(true);
+    expect(isOccupiedByPlayer(state, 'a1', 'white')).toBe(true);
     expect(isOccupiedByPlayer(state, { file: 1, rank: 1 }, 'black')).toBe(false);
     expect(isOccupiedByOpponent(state, { file: 1, rank: 7 })).toBe(true);
+    expect(isOccupiedByOpponent(state, 'a7')).toBe(true);
     expect(isOccupiedByOpponent(state, { file: 1, rank: 2 })).toBe(false);
   });
 
@@ -62,7 +71,18 @@ describe('board query API', () => {
     ]);
 
     expect(getLegalMovesForSquare(state, { file: 4, rank: 4 })).toHaveLength(14);
+    expect(getLegalMovesForSquare(state, 'd4')).toHaveLength(14);
+    expect(legalMoves(state, 'd4')).toHaveLength(14);
     expect(getLegalMovesForSquare(state, { file: 2, rank: 2 })).toEqual([]);
+    expect(getLegalMovesForSquare(state, 'b2')).toEqual([]);
+  });
+
+  it('returns simple destination squares for UI code', () => {
+    const state = createGame();
+
+    expect(moves(state, 'e2')).toEqual(['e3', 'e4']);
+    expect(moves(state, 'b1')).toEqual(['c3', 'a3']);
+    expect(moves(state, 'e4')).toEqual([]);
   });
 });
 

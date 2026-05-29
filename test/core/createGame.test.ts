@@ -1,12 +1,14 @@
-import {
-  createGame,
-  createVariantGame,
-  definePiece,
-  generateLegalMoves,
-  stepper,
-} from '../../src/index.js';
+import { Game, turn } from '../../src/index.js';
+import { createGame, createVariantGame } from '../../src/core/index.js';
+import { definePiece } from '../../src/pieces/index.js';
+import { generateLegalMoves } from '../../src/rules/index.js';
+import { stepper } from '../../src/movement/index.js';
 
 describe('createGame', () => {
+  it('creates a standard game through the concise Game alias', () => {
+    expect(Game()).toEqual(createGame());
+  });
+
   it('creates a deterministic standard chess initial state', () => {
     const first = createGame();
     const second = createGame();
@@ -15,6 +17,7 @@ describe('createGame', () => {
     expect(first.board).toEqual({ files: 8, ranks: 8 });
     expect(first.pieces).toHaveLength(32);
     expect(first.turn.activePlayer).toBe('white');
+    expect(turn(first)).toBe('white');
   });
 
   it('creates validated custom variant games with defaults', () => {

@@ -19,19 +19,46 @@ const domainExports = [
 
 describe('public exports', () => {
   it('keeps root package imports compatible for public APIs', () => {
-    expect(chesschemy).toHaveProperty('createGame');
+    expect(chesschemy).toHaveProperty('Game');
+    expect(chesschemy).toHaveProperty('turn');
     expect(chesschemy).toHaveProperty('createVariantGame');
     expect(chesschemy).toHaveProperty('definePiece');
+    expect(chesschemy).toHaveProperty('parseSquare');
+    expect(chesschemy).toHaveProperty('formatSquare');
     expect(chesschemy).toHaveProperty('stepper');
     expect(chesschemy).toHaveProperty('teleportSourceToTarget');
     expect(chesschemy).toHaveProperty('addTargetStatus');
     expect(chesschemy).toHaveProperty('useAbility');
     expect(chesschemy).toHaveProperty('validateAbility');
-    expect(chesschemy).toHaveProperty('getPieceAt');
-    expect(chesschemy).toHaveProperty('makeMove');
-    expect(chesschemy).toHaveProperty('validateMove');
-    expect(chesschemy).toHaveProperty('serializeGameState');
+    expect(chesschemy).toHaveProperty('pieceAt');
+    expect(chesschemy).toHaveProperty('moves');
+    expect(chesschemy).toHaveProperty('move');
+    expect(chesschemy).toHaveProperty('validate');
+    expect(chesschemy).toHaveProperty('formatSan');
+    expect(chesschemy).toHaveProperty('moveSan');
+    expect(chesschemy).toHaveProperty('isCheck');
+    expect(chesschemy).toHaveProperty('result');
+    expect(chesschemy).toHaveProperty('fen');
+    expect(chesschemy).toHaveProperty('fromFen');
+    expect(chesschemy).toHaveProperty('save');
+    expect(chesschemy).toHaveProperty('load');
     expect(chesschemy).toHaveProperty('validateGameState');
+  });
+
+  it('does not expose verbose aliases from the package root', () => {
+    expect(chesschemy).not.toHaveProperty('createGame');
+    expect(chesschemy).not.toHaveProperty('getPieceAt');
+    expect(chesschemy).not.toHaveProperty('getLegalMovesForSquare');
+    expect(chesschemy).not.toHaveProperty('legalMoves');
+    expect(chesschemy).not.toHaveProperty('makeMove');
+    expect(chesschemy).not.toHaveProperty('validateMove');
+    expect(chesschemy).not.toHaveProperty('makeMoveFromSquare');
+    expect(chesschemy).not.toHaveProperty('validateMoveFromSquare');
+    expect(chesschemy).not.toHaveProperty('isKingInCheck');
+    expect(chesschemy).not.toHaveProperty('serializeFen');
+    expect(chesschemy).not.toHaveProperty('deserializeFen');
+    expect(chesschemy).not.toHaveProperty('serializeGameState');
+    expect(chesschemy).not.toHaveProperty('deserializeGameState');
   });
 
   it('does not expose internal engine helpers from the package root', () => {

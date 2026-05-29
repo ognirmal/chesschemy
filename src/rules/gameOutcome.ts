@@ -8,6 +8,19 @@ export type GameOutcome =
   | { readonly kind: 'stalemate'; readonly player: PlayerId }
   | { readonly kind: 'insufficientMaterial' };
 
+export type GameResult = 'active' | 'draw' | `${string}-won`;
+
+export function result(state: GameState): GameResult {
+  switch (state.status.kind) {
+    case 'active':
+      return 'active';
+    case 'draw':
+      return 'draw';
+    case 'won':
+      return `${state.status.winner}-won`;
+  }
+}
+
 export function isCheckmate(
   state: GameState,
   playerId: PlayerId = state.turn.activePlayer,

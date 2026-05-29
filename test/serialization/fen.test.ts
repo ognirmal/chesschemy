@@ -1,21 +1,26 @@
 import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
+import { createGame } from '../../src/core/index.js';
+import { definePiece } from '../../src/pieces/index.js';
 import {
-  createGame,
-  definePiece,
   deserializeFen,
+  fen,
+  fromFen,
   serializeFen,
   STARTING_FEN,
-} from '../../src/index.js';
+} from '../../src/serialization/index.js';
 
 describe('FEN serialization', () => {
   it('serializes the standard initial position', () => {
     expect(serializeFen(createGame())).toBe(STARTING_FEN);
+    expect(fen(createGame())).toBe(STARTING_FEN);
   });
 
   it('deserializes the standard initial position', () => {
     const state = deserializeFen(STARTING_FEN);
+    const fromAlias = fromFen(STARTING_FEN);
 
     expect(state.board).toEqual({ files: 8, ranks: 8 });
+    expect(fromAlias).toEqual(state);
     expect(state.pieces).toHaveLength(32);
     expect(state.turn).toEqual({
       activePlayer: 'white',

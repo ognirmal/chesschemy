@@ -27,6 +27,10 @@ export function serializeGameState(state: GameState): SerializedGameState {
   };
 }
 
+export function save(state: GameState): SerializedGameState {
+  return serializeGameState(state);
+}
+
 export function deserializeGameState(
   serialized: SerializedGameState,
   options: DeserializeGameStateOptions = {},
@@ -42,4 +46,11 @@ export function deserializeGameState(
 
   validateGameState(state);
   return state;
+}
+
+export function load(
+  serialized: SerializedGameState,
+  options: DeserializeGameStateOptions = {},
+): GameState {
+  return deserializeGameState(serialized, options);
 }

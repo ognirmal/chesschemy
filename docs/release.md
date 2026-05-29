@@ -48,7 +48,8 @@ npm run publish:dry-run
 Before a release that changes behavior or public API, review:
 
 - `README.md` quick start and guide links.
-- `docs/public-api.md` for new, renamed, or removed exports.
+- `docs/public-api.md` for simple API changes.
+- `docs/advanced-api.md` for new, renamed, or removed full API exports.
 - `docs/getting-started.md` for standard game flow changes.
 - `docs/custom-pieces.md` for custom piece behavior changes.
 - `docs/abilities.md` for active, passive, triggered, status, or effect behavior changes.

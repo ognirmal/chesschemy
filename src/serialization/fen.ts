@@ -37,6 +37,10 @@ export function serializeFen(state: GameState): string {
   ].join(' ');
 }
 
+export function fen(state: GameState): string {
+  return serializeFen(state);
+}
+
 export function deserializeFen(fen: string): GameState {
   const fields = fen.trim().split(/\s+/u);
   if (fields.length !== 6) {
@@ -79,6 +83,10 @@ export function deserializeFen(fen: string): GameState {
 
   validateGameState(state);
   return state;
+}
+
+export function fromFen(value: string): GameState {
+  return deserializeFen(value);
 }
 
 export { STARTING_FEN };

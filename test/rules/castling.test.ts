@@ -5,7 +5,7 @@ import type {
   PlayerId,
   PseudoLegalMove,
 } from '../../src/index.js';
-import { generateLegalMoves } from '../../src/index.js';
+import { generateLegalMoves } from '../../src/rules/index.js';
 import { applyMove } from '../../src/rules/applyMove.js';
 
 describe('castling', () => {

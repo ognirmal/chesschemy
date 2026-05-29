@@ -5,7 +5,7 @@ import type {
   PlayerId,
   PseudoLegalMove,
 } from '../../src/index.js';
-import { createGame } from '../../src/index.js';
+import { createGame } from '../../src/core/index.js';
 import {
   generatePseudoLegalMoves,
   generatePseudoLegalMovesForPiece,

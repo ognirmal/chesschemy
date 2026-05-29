@@ -1,12 +1,14 @@
 import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
+import { createGame } from '../../src/core/index.js';
+import { definePiece } from '../../src/pieces/index.js';
+import { generateLegalMoves } from '../../src/rules/index.js';
+import { stepper } from '../../src/movement/index.js';
 import {
-  createGame,
-  definePiece,
   deserializeGameState,
-  generateLegalMoves,
+  load,
+  save,
   serializeGameState,
-  stepper,
-} from '../../src/index.js';
+} from '../../src/serialization/index.js';
 
 describe('game state serialization', () => {
   it('round-trips the standard initial state', () => {
@@ -14,6 +16,7 @@ describe('game state serialization', () => {
     const serialized = serializeGameState(state);
 
     expect(deserializeGameState(serialized)).toEqual(state);
+    expect(load(save(state))).toEqual(state);
   });
 
   it('preserves JSON-friendly piece statuses', () => {

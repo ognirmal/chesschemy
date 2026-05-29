@@ -1,6 +1,6 @@
-import { createGame, getLegalMovesForPiece, makeMove, validateMove } from 'chesschemy';
+import { Game, move, moves, validate } from 'chesschemy';
 
-let game = createGame();
+let game = Game();
 
 console.log({
   activePlayer: game.turn.activePlayer,
@@ -8,22 +8,17 @@ console.log({
   ruleset: game.ruleset.displayName,
 });
 
-const input = {
-  pieceId: 'white-pawn-5',
-  to: { file: 5, rank: 4 },
-};
-
 console.log({
-  legalMoves: getLegalMovesForPiece(game, input.pieceId),
+  moves: moves(game, 'e2'),
 });
 
-const validation = validateMove(game, input);
+const validation = validate(game, 'e2', 'e4');
 
 if (!validation.valid) {
   throw new Error(validation.reason);
 }
 
-game = makeMove(game, input);
+game = move(game, 'e2', 'e4');
 
 console.log({
   activePlayer: game.turn.activePlayer,

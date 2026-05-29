@@ -54,6 +54,7 @@ Prefer additive public API changes. When changing an existing API, update:
 - `test/api/publicExports.test.ts`
 - `README.md`
 - `docs/public-api.md`
+- `docs/advanced-api.md`
 - at least one focused behavior test or example
 
 Do not document planned APIs as available behavior. If a feature is a future

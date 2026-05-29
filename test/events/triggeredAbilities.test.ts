@@ -1,17 +1,9 @@
-import type {
-  AbilityDefinition,
-  Coordinate,
-  GameEvent,
-  GameState,
-  PieceInstance,
-  PlayerId,
-} from '../../src/index.js';
-import {
-  definePiece,
-  makeMove,
-  teleportSourceToTarget,
-  updateTargetPieceState,
-} from '../../src/index.js';
+import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
+import type { AbilityDefinition } from '../../src/abilities/index.js';
+import type { GameEvent } from '../../src/events/index.js';
+import { definePiece } from '../../src/pieces/index.js';
+import { makeMove } from '../../src/rules/index.js';
+import { teleportSourceToTarget, updateTargetPieceState } from '../../src/effects/index.js';
 
 describe('triggered abilities', () => {
   it('resolves triggered abilities from captured pieces', () => {

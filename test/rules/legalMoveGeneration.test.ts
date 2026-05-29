@@ -5,12 +5,8 @@ import type {
   PlayerId,
   PseudoLegalMove,
 } from '../../src/index.js';
-import {
-  createGame,
-  generateLegalMoves,
-  isKingInCheck,
-  isSquareAttacked,
-} from '../../src/index.js';
+import { createGame } from '../../src/core/index.js';
+import { generateLegalMoves, isKingInCheck, isSquareAttacked } from '../../src/rules/index.js';
 import { applyMove } from '../../src/rules/applyMove.js';
 
 describe('legal move generation', () => {

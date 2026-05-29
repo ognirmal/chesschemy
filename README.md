@@ -38,23 +38,27 @@ Package basics:
 ## Quick Start
 
 ```ts
-import { createGame, getLegalMovesForPiece, makeMove } from 'chesschemy';
+import { Game, move, moves, turn } from 'chesschemy';
 
-let game = createGame();
+let game = Game();
 
-console.log(game.turn.activePlayer); // "white"
-console.log(getLegalMovesForPiece(game, 'white-pawn-5'));
+console.log(turn(game)); // "white"
+console.log(moves(game, 'e2')); // ['e3', 'e4']
 
-game = makeMove(game, {
-  pieceId: 'white-pawn-5',
-  to: { file: 5, rank: 4 },
-});
+game = move(game, 'e2', 'e4');
 
-console.log(game.turn.activePlayer); // "black"
+console.log(turn(game)); // "black"
 ```
 
-Coordinates are numeric and one-based. Standard `e4` is
-`{ file: 5, rank: 4 }`.
+You can also pass one move string:
+
+```ts
+game = move(game, 'Nf3'); // SAN
+game = move(game, 'e7e5'); // coordinate notation
+```
+
+Most board APIs accept algebraic squares such as `'e4'` and numeric coordinates
+such as `{ file: 5, rank: 4 }`.
 
 ## What It Supports
 
@@ -132,7 +136,15 @@ console.log(game.ruleset.displayName);
 Most application code can import from the package root:
 
 ```ts
-import { createGame, makeMove, serializeGameState } from 'chesschemy';
+import { Game, fen, fromFen, load, move, save } from 'chesschemy';
+```
+
+```ts
+const text = fen(game);
+const fromText = fromFen(text);
+
+const snapshot = save(game);
+const restored = load(snapshot);
 ```
 
 Focused subpaths are available when you want clearer ownership:
@@ -141,7 +153,8 @@ Focused subpaths are available when you want clearer ownership:
 import { useAbility } from 'chesschemy/abilities';
 import { teleportSourceToTarget } from 'chesschemy/effects';
 import { stepper } from 'chesschemy/movement';
-import { getPieceAt } from 'chesschemy/queries';
+import { pieceAt } from 'chesschemy/queries';
+import { isCheck } from 'chesschemy/rules';
 ```
 
 Do not import from `src/*` or `dist/*`; those paths are not public API.
@@ -149,7 +162,8 @@ Do not import from `src/*` or `dist/*`; those paths are not public API.
 ## Guides
 
 - [Getting Started](docs/getting-started.md)
-- [Public API Guide](docs/public-api.md)
+- [Simple API](docs/public-api.md)
+- [Advanced API](docs/advanced-api.md)
 - [Custom Pieces](docs/custom-pieces.md)
 - [Abilities](docs/abilities.md)
 - [Passive Abilities](docs/passive-abilities.md)

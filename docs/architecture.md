@@ -76,5 +76,5 @@ subpath exports. Files that are not exported by `package.json` are internal, eve
 when TypeScript source names are visible in the repository.
 
 Feature implementations should keep public contracts stable and grow tests with
-the risk of the behavior being added. See [Public API Guide](public-api.md) for
+the risk of the behavior being added. See [Advanced API](advanced-api.md) for
 the supported surface.

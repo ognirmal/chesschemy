@@ -5,7 +5,16 @@ import type {
   PieceInstance,
   PlayerId,
 } from '../../src/index.js';
-import { createGame, makeMove, validateMove, ValidationError } from '../../src/index.js';
+import { createGame } from '../../src/core/index.js';
+import {
+  makeMove,
+  makeMoveFromSquare,
+  move,
+  validate,
+  validateMove,
+  validateMoveFromSquare,
+} from '../../src/rules/index.js';
+import { ValidationError } from '../../src/index.js';
 
 describe('move execution API', () => {
   it('validates and applies a simple legal move from user input', () => {
@@ -28,6 +37,57 @@ describe('move execution API', () => {
     });
     expect(nextState.turn.activePlayer).toBe('black');
     expect(nextState.status).toEqual({ kind: 'active' });
+  });
+
+  it('validates and applies moves using square notation', () => {
+    const state = createGame();
+
+    expect(
+      validateMove(state, {
+        pieceId: 'white-pawn-5',
+        to: 'e4',
+      }),
+    ).toMatchObject({ valid: true });
+
+    const nextState = makeMoveFromSquare(state, {
+      from: 'e2',
+      to: 'e4',
+    });
+
+    expect(nextState.pieces.find((piece) => piece.id === 'white-pawn-5')?.position).toEqual({
+      file: 5,
+      rank: 4,
+    });
+    expect(nextState.turn.activePlayer).toBe('black');
+  });
+
+  it('supports simple move and validate aliases', () => {
+    const state = createGame();
+
+    expect(validate(state, 'e2', 'e4')).toMatchObject({ valid: true });
+
+    const nextState = move(state, 'e2', 'e4');
+
+    expect(nextState.pieces.find((piece) => piece.id === 'white-pawn-5')?.position).toEqual({
+      file: 5,
+      rank: 4,
+    });
+  });
+
+  it('returns structured validation failures for square-based moves', () => {
+    const state = createGame();
+
+    expect(validateMoveFromSquare(state, { from: 'e4', to: 'e5' })).toEqual({
+      valid: false,
+      reason: 'No piece at square: e4',
+    });
+
+    expect(validateMoveFromSquare(state, { from: 'z99', to: 'z100' })).toEqual({
+      valid: false,
+      reason: 'Invalid square: z99',
+    });
+
+    expect(() => makeMoveFromSquare(state, { from: 'e4', to: 'e5' })).toThrow(ValidationError);
   });
 
   it('returns structured validation failures for illegal moves', () => {

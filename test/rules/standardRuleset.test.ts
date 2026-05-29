@@ -1,4 +1,5 @@
-import { createGame, standardRuleset } from '../../src/index.js';
+import { createGame } from '../../src/core/index.js';
+import { standardRuleset } from '../../src/rules/index.js';
 
 describe('standardRuleset', () => {
   it('accepts only 8x8 boards', () => {

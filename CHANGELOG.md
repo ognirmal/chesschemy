@@ -10,6 +10,21 @@
   smaller and easier to inspect.
 - Reworked the README into a shorter npm-facing overview with focused quick
   start, variant, import-path, and guide sections.
+- Added square-notation helpers and square-based move APIs for simpler
+  application code: `parseSquare`, `formatSquare`, `toCoordinate`,
+  `validateMoveFromSquare`, and `makeMoveFromSquare`.
+- Added concise aliases for common app code: `move`, `validate`, `pieceAt`, and
+  `legalMoves`.
+- Added `Game()` as a concise alias for `createGame()`.
+- Added one-string move support for SAN such as `Nf3` and coordinate notation
+  such as `e2e4`, plus `formatSan` and `moveSan`.
+- Added `moves(state, square)` for simple legal destination output like
+  `['e3', 'e4']`.
+- Added concise serialization aliases: `fen`, `fromFen`, `save`, and `load`.
+- Added `isCheck(state, playerId?)` as a concise alias for check detection.
+- Added `turn(state)` and `result(state)` for simple game-loop status reads.
+- Split the API docs into a concise `docs/public-api.md` Simple API page and a
+  full `docs/advanced-api.md` Advanced API guide.
 
 ## 0.6.1 - 2026-05-28
 

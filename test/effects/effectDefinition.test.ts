@@ -1,12 +1,7 @@
-import type {
-  AbilityDefinition,
-  Coordinate,
-  EffectContext,
-  GameState,
-  PieceDefinition,
-  PieceInstance,
-  PlayerId,
-} from '../../src/index.js';
+import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
+import type { AbilityDefinition } from '../../src/abilities/index.js';
+import type { EffectContext } from '../../src/effects/index.js';
+import type { PieceDefinition } from '../../src/pieces/index.js';
 import {
   addSourceStatus,
   addTargetStatus,
@@ -17,7 +12,7 @@ import {
   teleportSourceToTarget,
   updateSourceState,
   updateTargetPieceState,
-} from '../../src/index.js';
+} from '../../src/effects/index.js';
 
 describe('effect definitions', () => {
   it('supports custom effect metadata', () => {

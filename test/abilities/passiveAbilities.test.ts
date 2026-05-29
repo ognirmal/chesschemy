@@ -1,11 +1,7 @@
-import type {
-  AbilityDefinition,
-  Coordinate,
-  GameState,
-  PieceInstance,
-  PlayerId,
-} from '../../src/index.js';
-import { definePiece, generateLegalMoves, isKingInCheck, makeMove } from '../../src/index.js';
+import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
+import type { AbilityDefinition } from '../../src/abilities/index.js';
+import { definePiece } from '../../src/pieces/index.js';
+import { generateLegalMoves, isKingInCheck, makeMove } from '../../src/rules/index.js';
 
 describe('passive abilities', () => {
   it('can prevent captures through passive capture rules', () => {

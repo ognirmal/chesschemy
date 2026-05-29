@@ -1,12 +1,29 @@
 import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
 import {
   getGameOutcome,
+  isCheck,
   isCheckmate,
   isInsufficientMaterial,
   isStalemate,
+  result,
 } from '../../src/index.js';
 
 describe('game outcome helpers', () => {
+  it('checks the active player by default or an explicit player', () => {
+    const state = gameState(
+      [
+        piece('white-king', 'king', 'white', { file: 5, rank: 1 }),
+        piece('black-king', 'king', 'black', { file: 8, rank: 8 }),
+        piece('black-rook', 'rook', 'black', { file: 5, rank: 8 }),
+      ],
+      'white',
+    );
+
+    expect(isCheck(state)).toBe(true);
+    expect(isCheck(state, 'white')).toBe(true);
+    expect(isCheck(state, 'black')).toBe(false);
+  });
+
   it('detects checkmate', () => {
     const state = gameState(
       [
@@ -53,6 +70,19 @@ describe('game outcome helpers', () => {
     );
 
     expect(getGameOutcome(state)).toEqual({ kind: 'active' });
+    expect(result(state)).toBe('active');
+  });
+
+  it('returns simple result strings from game status', () => {
+    expect(result({ ...gameState([], 'white'), status: { kind: 'draw', reason: 'test' } })).toBe(
+      'draw',
+    );
+    expect(
+      result({
+        ...gameState([], 'white'),
+        status: { kind: 'won', winner: 'black', reason: 'checkmate' },
+      }),
+    ).toBe('black-won');
   });
 
   it('detects insufficient material with bare kings', () => {

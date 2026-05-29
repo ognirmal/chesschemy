@@ -1,23 +1,9 @@
-import type {
-  Coordinate,
-  GameState,
-  MoveCandidate,
-  PieceBehaviorContext,
-  PieceInstance,
-  PlayerId,
-} from '../../src/index.js';
-import {
-  BasePiece,
-  createGame,
-  definePiece,
-  generateLegalMoves,
-  isKingInCheck,
-  leaper,
-  PieceRegistry,
-  slider,
-  stationary,
-  stepper,
-} from '../../src/index.js';
+import type { Coordinate, GameState, PieceInstance, PlayerId } from '../../src/index.js';
+import type { MoveCandidate, PieceBehaviorContext } from '../../src/movement/index.js';
+import { createGame } from '../../src/core/index.js';
+import { BasePiece, definePiece, PieceRegistry } from '../../src/pieces/index.js';
+import { generateLegalMoves, isKingInCheck } from '../../src/rules/index.js';
+import { leaper, slider, stationary, stepper } from '../../src/movement/index.js';
 
 describe('custom pieces', () => {
   it('supports declarative stepper pieces through definePiece', () => {

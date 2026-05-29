@@ -13,15 +13,12 @@ variant definition as untrusted until validated.
 Recommended server-side flow:
 
 ```ts
-import { createGame, makeMove, validateGameState } from 'chesschemy';
+import { Game, move, validateGameState } from 'chesschemy';
 
-let game = createGame();
+let game = Game();
 
 validateGameState(game);
-game = makeMove(game, {
-  pieceId: 'white-pawn-5',
-  to: { file: 5, rank: 4 },
-});
+game = move(game, 'e2', 'e4');
 ```
 
 Do not accept a client-updated `GameState` as authoritative in multiplayer

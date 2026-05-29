@@ -171,4 +171,4 @@ family.
 
 - [Abilities](abilities.md)
 - [Passive Abilities](passive-abilities.md)
-- [Public API Guide](public-api.md)
+- [Advanced API](advanced-api.md)

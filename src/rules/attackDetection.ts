@@ -44,6 +44,10 @@ export function isKingInCheck(state: GameState, playerId: PlayerId): boolean {
   return isSquareAttacked(state, king.position, getOpposingPlayer(state, playerId));
 }
 
+export function isCheck(state: GameState, playerId: PlayerId = state.turn.activePlayer): boolean {
+  return isKingInCheck(state, playerId);
+}
+
 export function isSquareAttacked(
   state: GameState,
   square: Coordinate,
