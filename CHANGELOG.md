@@ -26,6 +26,12 @@
 - Split the API docs into a concise `docs/public-api.md` Simple API page and a
   full `docs/advanced-api.md` Advanced API guide.
 
+### Docs
+
+- Refined README, getting-started, architecture, security, abilities, and
+  example docs to present the simple API first and keep verbose helpers in the
+  Advanced API guide.
+
 ## 0.6.1 - 2026-05-28
 
 ### Docs
