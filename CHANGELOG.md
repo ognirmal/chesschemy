@@ -2,8 +2,16 @@
 
 ## Unreleased
 
+## 0.7.0 - 2026-05-29
+
 ### Changed
 
+- Breaking: the package root now exposes the simple public API first. Verbose
+  helpers such as `createGame`, `makeMove`, `validateMove`, `getPieceAt`,
+  `legalMoves`, `serializeFen`, `deserializeFen`, `serializeGameState`,
+  `deserializeGameState`, and `isKingInCheck` are no longer exported from the
+  root entry point. Use the new concise helpers from `chesschemy`, or import
+  advanced helpers from their documented subpaths.
 - Simplified package subpath exports to a single pattern while preserving the
   documented `chesschemy/<domain>` import paths.
 - Stopped emitting source maps in package builds to keep the npm tarball

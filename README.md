@@ -60,6 +60,47 @@ game = move(game, 'e7e5'); // coordinate notation
 Most board APIs accept algebraic squares such as `'e4'` and numeric coordinates
 such as `{ file: 5, rank: 4 }`.
 
+## Breaking Changes In 0.7
+
+The package root now presents the simple API first. Older verbose helpers are
+still available from their focused subpaths, but they are no longer exported
+from `chesschemy`.
+
+Use these root imports for common app code:
+
+```ts
+import {
+  Game,
+  fen,
+  fromFen,
+  isCheck,
+  load,
+  move,
+  moves,
+  pieceAt,
+  result,
+  save,
+  turn,
+  validate,
+} from 'chesschemy';
+```
+
+Migration examples:
+
+- `createGame()` -> `Game()`
+- `makeMove(game, input)` -> `move(game, 'e2', 'e4')` or `move(game, 'Nf3')`
+- `validateMove(game, input)` -> `validate(game, 'e2', 'e4')`
+- `getPieceAt(game, square)` -> `pieceAt(game, square)`
+- `legalMoves(game, square)` -> `moves(game, square)` for destination strings
+- `serializeFen(game)` / `deserializeFen(text)` -> `fen(game)` /
+  `fromFen(text)`
+- `serializeGameState(game)` / `deserializeGameState(data)` -> `save(game)` /
+  `load(data)`
+- `isKingInCheck(game, player)` -> `isCheck(game, player)`
+
+Use [Simple API](docs/public-api.md) for the short names and
+[Advanced API](docs/advanced-api.md) when you need the full verbose helpers.
+
 ## What It Supports
 
 - Standard 8x8 chess initial state
