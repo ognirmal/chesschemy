@@ -136,7 +136,20 @@ console.log(game.ruleset.displayName);
 Most application code can import from the package root:
 
 ```ts
-import { Game, fen, fromFen, load, move, save } from 'chesschemy';
+import {
+  Game,
+  fen,
+  fromFen,
+  isCheck,
+  load,
+  move,
+  moves,
+  pieceAt,
+  result,
+  save,
+  turn,
+  validate,
+} from 'chesschemy';
 ```
 
 ```ts
@@ -147,14 +160,12 @@ const snapshot = save(game);
 const restored = load(snapshot);
 ```
 
-Focused subpaths are available when you want clearer ownership:
+Focused subpaths are available for variant-building APIs:
 
 ```ts
 import { useAbility } from 'chesschemy/abilities';
 import { teleportSourceToTarget } from 'chesschemy/effects';
 import { stepper } from 'chesschemy/movement';
-import { pieceAt } from 'chesschemy/queries';
-import { isCheck } from 'chesschemy/rules';
 ```
 
 Do not import from `src/*` or `dist/*`; those paths are not public API.

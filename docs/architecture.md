@@ -28,13 +28,13 @@ rules and board state, applies a deterministic state transition, resolves
 triggered abilities, updates terminal status, and returns the next snapshot.
 
 ```txt
-createGame/createVariantGame
+Game/createVariantGame
   -> validateGameState
   -> application chooses move or ability
-  -> validateMove/validateAbility
-  -> makeMove/useAbility
+  -> validate/validateAbility
+  -> move/useAbility
   -> events and triggered abilities
-  -> status and serialization
+  -> result and save/fen
 ```
 
 ## Module Boundaries

@@ -83,8 +83,8 @@ examples.
 When documenting custom variants, include both kings and keep examples within
 the current two-player, king-based validation model.
 
-Use `serializeGameState` for custom variants. Use FEN only for standard chess
-positions.
+Use `save` and `load` for custom variants. Use `fen` and `fromFen` only for
+standard chess positions.
 
 ## Release Notes
 

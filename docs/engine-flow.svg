@@ -26,7 +26,7 @@
 
   <rect class="box" x="54" y="112" width="150" height="88"/>
   <text class="label" x="76" y="142">Create State</text>
-  <text class="tiny" x="76" y="166">createGame</text>
+  <text class="tiny" x="76" y="166">Game</text>
   <text class="tiny" x="76" y="184">createVariantGame</text>
 
   <rect class="box" x="254" y="112" width="150" height="88"/>
@@ -46,7 +46,7 @@
 
   <rect class="accent" x="854" y="112" width="150" height="88" rx="8"/>
   <text class="label" x="876" y="142">Next State</text>
-  <text class="tiny" x="876" y="166">makeMove</text>
+  <text class="tiny" x="876" y="166">move</text>
   <text class="tiny" x="876" y="184">useAbility</text>
 
   <path class="line" d="M 204 156 L 246 156"/>
@@ -75,7 +75,7 @@
 
   <rect class="warn" x="290" y="424" width="210" height="58" rx="8"/>
   <text class="label" x="314" y="448">Persistence</text>
-  <text class="tiny" x="314" y="468">serializeGameState or FEN</text>
+  <text class="tiny" x="314" y="468">save or fen</text>
 
   <rect class="warn" x="540" y="424" width="210" height="58" rx="8"/>
   <text class="label" x="564" y="448">Application</text>

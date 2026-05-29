@@ -44,20 +44,21 @@ outside Chesschemy before running user-authored code.
 
 ## Serialization
 
-`serializeGameState` returns JSON-friendly engine state and intentionally omits
-piece definitions, ability callbacks, effect functions, and classes. Persist the
-serialized payload with a version and reattach trusted definitions during
-restore:
+`save` returns JSON-friendly engine state and intentionally omits piece
+definitions, ability callbacks, effect functions, and classes. Persist the
+saved payload with a version and reattach trusted definitions during restore:
 
 ```ts
-const saved = serializeGameState(game);
-const restored = deserializeGameState(saved, {
+import { load, save } from 'chesschemy';
+
+const saved = save(game);
+const restored = load(saved, {
   pieceDefinitions: trustedDefinitions,
 });
 ```
 
-Validate restored state before using it in gameplay. `deserializeGameState`
-already validates the state it returns.
+Validate restored state before using it in gameplay. `load` already validates
+the state it returns.
 
 FEN parsing is for standard chess positions. Do not use FEN as a custom-variant
 persistence format.

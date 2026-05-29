@@ -1,9 +1,8 @@
 import type { AbilityDefinition } from 'chesschemy/abilities';
-import { createVariantGame } from 'chesschemy/core';
+import { createVariantGame, move } from 'chesschemy';
 import { removeSource } from 'chesschemy/effects';
 import type { MoveCandidate, PieceBehaviorContext } from 'chesschemy/movement';
 import { BasePiece } from 'chesschemy/pieces';
-import { makeMove } from 'chesschemy/rules';
 
 const vanishAfterCapture: AbilityDefinition = {
   id: 'vanish-after-capture',
@@ -47,10 +46,7 @@ const game = createVariantGame({
   },
 });
 
-const nextGame = makeMove(game, {
-  pieceId: 'white-assassin',
-  to: { file: 5, rank: 5 },
-});
+const nextGame = move(game, 'd4', 'e5');
 
 console.log({
   assassinExists: nextGame.pieces.some((piece) => piece.id === 'white-assassin'),

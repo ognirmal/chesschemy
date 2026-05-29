@@ -148,20 +148,20 @@ supported hook.
 
 ## Serialize Custom Games
 
-`serializeGameState` stores JSON-friendly runtime state. Piece definitions,
-ability callbacks, and effect functions are intentionally not included in the
-serialized payload. Reattach definitions when restoring.
+`save` stores JSON-friendly runtime state. Piece definitions, ability callbacks,
+and effect functions are intentionally not included in the saved payload.
+Reattach definitions when restoring with `load`.
 
 ```ts
-import { deserializeGameState, serializeGameState } from 'chesschemy/serialization';
+import { load, save } from 'chesschemy';
 
-const saved = serializeGameState(game);
-const restored = deserializeGameState(saved, {
+const saved = save(game);
+const restored = load(saved, {
   pieceDefinitions: [wizard, assassin],
 });
 ```
 
-FEN support is for standard chess positions only. Use `serializeGameState` for
+FEN support is for standard chess positions only. Use `save` and `load` for
 custom pieces and abilities.
 
 ## Runnable Examples

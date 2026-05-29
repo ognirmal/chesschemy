@@ -54,34 +54,26 @@ Standard-board examples:
 Use query helpers instead of scanning arrays in application code.
 
 ```ts
-import { getActivePlayerPieces, moves, pieceAt } from 'chesschemy';
+import { moves, pieceAt, turn } from 'chesschemy';
 
-const activePieces = getActivePlayerPieces(game);
+const activePlayer = turn(game);
 const whiteKing = pieceAt(game, 'e1');
 const pawnMoves = moves(game, 'e2');
 
-console.log(activePieces.length);
+console.log(activePlayer);
 console.log(whiteKing?.id);
 console.log(pawnMoves);
 ```
 
-Useful query helpers:
+Simple helpers:
 
-- `getPieceAt(state, coordinate)`
-- `getPieceAt(state, square)`
 - `pieceAt(state, square)`
-- `getPieceById(state, pieceId)`
-- `getPiecesForPlayer(state, playerId)`
-- `getActivePlayerPieces(state)`
-- `isOccupied(state, coordinate)`
-- `isOccupiedByPlayer(state, coordinate, playerId)`
-- `isOccupiedByOpponent(state, coordinate, playerId?)`
-- `getLegalMovesForPiece(state, pieceId)`
-- `getLegalMovesForSquare(state, coordinate)`
-- `getLegalMovesForSquare(state, square)`
-- `legalMoves(state, square)`
 - `moves(state, square)`
-- `getLegalDestinationsForPiece(state, pieceId)`
+- `turn(state)`
+- `result(state)`
+
+Use [Advanced API](advanced-api.md) for full move objects, occupancy checks,
+player-piece filtering, and piece-id queries.
 
 ## 5. Validate a Move Before Applying It
 

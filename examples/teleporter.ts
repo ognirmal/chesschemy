@@ -1,10 +1,9 @@
 import type { AbilityDefinition } from 'chesschemy/abilities';
+import { createVariantGame, pieceAt } from 'chesschemy';
 import { useAbility, validateAbility } from 'chesschemy/abilities';
-import { createVariantGame } from 'chesschemy/core';
 import { teleportSourceToTarget } from 'chesschemy/effects';
 import type { MoveCandidate, PieceBehaviorContext } from 'chesschemy/movement';
 import { BasePiece } from 'chesschemy/pieces';
-import { getPieceAt } from 'chesschemy/queries';
 
 class Teleporter extends BasePiece {
   public readonly id = 'teleporter';
@@ -60,7 +59,7 @@ if (!validation.valid) {
 const nextGame = useAbility(game, input);
 
 console.log({
-  teleporter: getPieceAt(nextGame, { file: 6, rank: 5 }),
+  teleporter: pieceAt(nextGame, { file: 6, rank: 5 }),
   activePlayer: nextGame.turn.activePlayer,
   history: nextGame.history,
 });

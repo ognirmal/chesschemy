@@ -38,7 +38,7 @@ const game = Game();
 ```
 
 `Game()` creates a standard chess game. It is the concise alias for
-`createGame()`.
+the advanced `createGame()` helper from `chesschemy/core`.
 
 ## Move
 
