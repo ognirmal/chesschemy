@@ -48,7 +48,7 @@ describe('public exports', () => {
     expect(chesschemy).not.toHaveProperty('isTargetAvailable');
   });
 
-  it('declares package subpath exports for every public domain barrel', () => {
+  it('declares root and pattern package exports for public domain barrels', () => {
     const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as {
       exports: Record<string, Record<string, string>>;
     };
@@ -59,12 +59,20 @@ describe('public exports', () => {
       require: './dist/index.cjs',
     });
 
+    expect(packageJson.exports['./*']).toEqual({
+      types: './dist/*/index.d.ts',
+      import: './dist/*/index.js',
+      require: './dist/*/index.cjs',
+    });
+
+    expect(Object.keys(packageJson.exports).sort()).toEqual(['.', './*']);
+  });
+
+  it('builds a domain entry for every documented subpath', () => {
+    const tsupConfig = readFileSync('tsup.config.ts', 'utf8');
+
     for (const domain of domainExports) {
-      expect(packageJson.exports[`./${domain}`]).toEqual({
-        types: `./dist/${domain}/index.d.ts`,
-        import: `./dist/${domain}/index.js`,
-        require: `./dist/${domain}/index.cjs`,
-      });
+      expect(tsupConfig).toContain(`'${domain}'`);
     }
   });
 });

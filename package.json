@@ -37,65 +37,10 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./abilities": {
-      "types": "./dist/abilities/index.d.ts",
-      "import": "./dist/abilities/index.js",
-      "require": "./dist/abilities/index.cjs"
-    },
-    "./core": {
-      "types": "./dist/core/index.d.ts",
-      "import": "./dist/core/index.js",
-      "require": "./dist/core/index.cjs"
-    },
-    "./effects": {
-      "types": "./dist/effects/index.d.ts",
-      "import": "./dist/effects/index.js",
-      "require": "./dist/effects/index.cjs"
-    },
-    "./events": {
-      "types": "./dist/events/index.d.ts",
-      "import": "./dist/events/index.js",
-      "require": "./dist/events/index.cjs"
-    },
-    "./movement": {
-      "types": "./dist/movement/index.d.ts",
-      "import": "./dist/movement/index.js",
-      "require": "./dist/movement/index.cjs"
-    },
-    "./pieces": {
-      "types": "./dist/pieces/index.d.ts",
-      "import": "./dist/pieces/index.js",
-      "require": "./dist/pieces/index.cjs"
-    },
-    "./presets": {
-      "types": "./dist/presets/index.d.ts",
-      "import": "./dist/presets/index.js",
-      "require": "./dist/presets/index.cjs"
-    },
-    "./queries": {
-      "types": "./dist/queries/index.d.ts",
-      "import": "./dist/queries/index.js",
-      "require": "./dist/queries/index.cjs"
-    },
-    "./rules": {
-      "types": "./dist/rules/index.d.ts",
-      "import": "./dist/rules/index.js",
-      "require": "./dist/rules/index.cjs"
-    },
-    "./serialization": {
-      "types": "./dist/serialization/index.d.ts",
-      "import": "./dist/serialization/index.js",
-      "require": "./dist/serialization/index.cjs"
-    },
-    "./statuses": {
-      "types": "./dist/statuses/index.d.ts",
-      "import": "./dist/statuses/index.js",
-      "require": "./dist/statuses/index.cjs"
-    },
-    "./validation": {
-      "types": "./dist/validation/index.d.ts",
-      "import": "./dist/validation/index.js",
-      "require": "./dist/validation/index.cjs"
+    "./*": {
+      "types": "./dist/*/index.d.ts",
+      "import": "./dist/*/index.js",
+      "require": "./dist/*/index.cjs"
     }
   },
   "scripts": {

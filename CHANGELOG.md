@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Simplified package subpath exports to a single pattern while preserving the
+  documented `chesschemy/<domain>` import paths.
+- Stopped emitting source maps in package builds to keep the npm tarball
+  smaller and easier to inspect.
+- Reworked the README into a shorter npm-facing overview with focused quick
+  start, variant, import-path, and guide sections.
+
 ## 0.6.1 - 2026-05-28
 
 ### Docs

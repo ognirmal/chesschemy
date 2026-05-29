@@ -1,25 +1,26 @@
 import { defineConfig } from 'tsup';
 
+const domainEntries = [
+  'abilities',
+  'core',
+  'effects',
+  'events',
+  'movement',
+  'pieces',
+  'presets',
+  'queries',
+  'rules',
+  'serialization',
+  'statuses',
+  'validation',
+];
+
 export default defineConfig({
   clean: true,
   dts: true,
-  entry: [
-    'src/index.ts',
-    'src/abilities/index.ts',
-    'src/core/index.ts',
-    'src/effects/index.ts',
-    'src/events/index.ts',
-    'src/movement/index.ts',
-    'src/pieces/index.ts',
-    'src/presets/index.ts',
-    'src/queries/index.ts',
-    'src/rules/index.ts',
-    'src/serialization/index.ts',
-    'src/statuses/index.ts',
-    'src/validation/index.ts',
-  ],
+  entry: ['src/index.ts', ...domainEntries.map((domain) => `src/${domain}/index.ts`)],
   format: ['esm', 'cjs'],
-  sourcemap: true,
+  sourcemap: false,
   splitting: false,
   target: 'es2022',
 });
